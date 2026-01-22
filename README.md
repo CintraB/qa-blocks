@@ -82,8 +82,8 @@ O projeto está organizado da seguinte forma:
 
 1. Clone o repositório:
 ```bash
-git clone https://github.com/seu-usuario/cristhian_cintra_barbosa.git
-cd cristhian_cintra_barbosa
+git clone https://github.com/CintraB/qa-blocks.git
+cd qa-blocks
 ```
 
 2. Instale as dependências:
@@ -108,6 +108,11 @@ Executa todos os testes em modo headless:
 ```bash
 npm run cy:run:chrome
 ```
+## Relatório Detalhado
+
+O relatório completo de testes pode ser encontrado em:
+- **Markdown:** `Relatorio_QA_Blocks/Cristhian_Cintra_Barbosa_Relatorio_QA_Blocks.md`
+- **PDF:** `Relatorio_QA_Blocks/Cristhian_Cintra_Barbosa_Relatorio_QA_Blocks.pdf`
 
 ## Relatórios
 
@@ -120,7 +125,6 @@ Após a execução dos testes, os relatórios são gerados automaticamente:
 
 - **JUnit XML:** `cypress/reports/junit/`
   - Formato compatível com ferramentas CI/CD
-  - Integração com Jenkins, GitLab CI, etc.
 
 ### Visualizar Relatório HTML
 
@@ -173,12 +177,6 @@ Testes Falhados: 0
 Taxa de Sucesso: 100%
 Tempo Total: ~36 segundos
 ```
-
-## Relatório Detalhado
-
-O relatório completo de testes pode ser encontrado em:
-- **Markdown:** `Relatorio_QA_Blocks/Cristhian_Cintra_Barbosa_Relatorio_QA_Blocks.md`
-- **PDF:** `Relatorio_QA_Blocks/Cristhian_Cintra_Barbosa_Relatorio_QA_Blocks.pdf`
 
 ## Autor
 
