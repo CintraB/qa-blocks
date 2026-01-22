@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="Mocha Tests" time="6.527" tests="1" failures="0">
+  <testsuite name="Root Suite" timestamp="2026-01-22T18:37:46" tests="0" file="cypress\e2e\cadastroSemTermo.cy.js" time="0.000" failures="0">
+  </testsuite>
+  <testsuite name="Cadastro sem confirmar a politica de privacidade" timestamp="2026-01-22T18:37:46" tests="1" time="6.525" failures="0">
+    <testcase name="Cadastro sem confirmar a politica de privacidade Realizar cadastro sem confirmar a politica de privacidade" time="5.053" classname="Realizar cadastro sem confirmar a politica de privacidade">
+    </testcase>
+  </testsuite>
+</testsuites>

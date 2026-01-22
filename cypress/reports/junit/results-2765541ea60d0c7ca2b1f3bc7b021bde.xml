@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="Mocha Tests" time="6.568" tests="1" failures="0">
+  <testsuite name="Root Suite" timestamp="2026-01-22T18:26:51" tests="0" file="cypress\e2e\cadastroSenhaDif.cy.js" time="0.000" failures="0">
+  </testsuite>
+  <testsuite name="Cadastro com senhas diferentes" timestamp="2026-01-22T18:26:51" tests="1" time="6.565" failures="0">
+    <testcase name="Cadastro com senhas diferentes Realizar cadastro com senhas diferentes" time="4.811" classname="Realizar cadastro com senhas diferentes">
+    </testcase>
+  </testsuite>
+</testsuites>

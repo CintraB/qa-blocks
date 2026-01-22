@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="Mocha Tests" time="11.742" tests="1" failures="1">
+  <testsuite name="Root Suite" timestamp="2026-01-22T18:26:20" tests="0" file="cypress\e2e\cadastroCompleto.cy.js" time="0.000" failures="0">
+  </testsuite>
+  <testsuite name="Cadastro completo" timestamp="2026-01-22T18:26:20" tests="1" time="11.738" failures="1">
+    <testcase name="Cadastro completo Cadastrar um usuário com sucesso" time="0.000" classname="Cadastrar um usuário com sucesso">
+      <failure message="Timed out retrying after 4050ms: `cy.click()` failed because this element is `disabled`:
+
+`&lt;button type=&quot;submit&quot; class=&quot;px-4 py-2 gap-2 rounded-lg bg-gray-200 border border-gray-400 pointer-events-none !mt-0&quot; disabled=&quot;&quot;&gt;...&lt;/button&gt;`
+
+Fix this problem, or use `{force: true}` to disable error checking.
+
+https://on.cypress.io/element-cannot-be-interacted-with" type="CypressError"><![CDATA[CypressError: Timed out retrying after 4050ms: `cy.click()` failed because this element is `disabled`:
+
+`<button type="submit" class="px-4 py-2 gap-2 rounded-lg bg-gray-200 border border-gray-400 pointer-events-none !mt-0" disabled="">...</button>`
+
+Fix this problem, or use `{force: true}` to disable error checking.
+
+https://on.cypress.io/element-cannot-be-interacted-with
+    at Object.isNotDisabled (https://www.blocksrvt.com/__cypress/runner/cypress_runner.js:152885:58)
+    at runAllChecks (https://www.blocksrvt.com/__cypress/runner/cypress_runner.js:115381:26)
+    at retryActionability (https://www.blocksrvt.com/__cypress/runner/cypress_runner.js:115470:16)
+    at tryCatcher (https://www.blocksrvt.com/__cypress/runner/cypress_runner.js:1777:23)
+    at Promise.attempt.Promise.try (https://www.blocksrvt.com/__cypress/runner/cypress_runner.js:4285:29)
+    at whenStable (https://www.blocksrvt.com/__cypress/runner/cypress_runner.js:151746:68)
+    at <unknown> (https://www.blocksrvt.com/__cypress/runner/cypress_runner.js:151687:14)
+    at tryCatcher (https://www.blocksrvt.com/__cypress/runner/cypress_runner.js:1777:23)
+    at Promise._settlePromiseFromHandler (https://www.blocksrvt.com/__cypress/runner/cypress_runner.js:1489:31)
+    at Promise._settlePromise (https://www.blocksrvt.com/__cypress/runner/cypress_runner.js:1546:18)
+    at Promise._settlePromise0 (https://www.blocksrvt.com/__cypress/runner/cypress_runner.js:1591:10)
+    at Promise._settlePromises (https://www.blocksrvt.com/__cypress/runner/cypress_runner.js:1671:18)
+    at Promise._fulfill (https://www.blocksrvt.com/__cypress/runner/cypress_runner.js:1615:18)
+    at <unknown> (https://www.blocksrvt.com/__cypress/runner/cypress_runner.js:5420:46)
+From Your Spec Code:
+    at Object.proxyGetter [as get] (https://www.blocksrvt.com/__cypress/runner/cypress_runner.js:81012:22)
+    at exists (https://www.blocksrvt.com/__cypress/runner/cypress_runner.js:150934:26)
+    at elExists (https://www.blocksrvt.com/__cypress/runner/cypress_runner.js:150949:10)
+    at ensureExistence (https://www.blocksrvt.com/__cypress/runner/cypress_runner.js:151130:22)
+    at onFailFn (https://www.blocksrvt.com/__cypress/runner/cypress_runner.js:151159:53)]]></failure>
+    </testcase>
+  </testsuite>
+</testsuites>

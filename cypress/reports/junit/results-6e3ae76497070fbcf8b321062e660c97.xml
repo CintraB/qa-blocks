@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="Mocha Tests" time="9.037" tests="2" failures="0">
+  <testsuite name="Root Suite" timestamp="2026-01-22T18:35:38" tests="0" file="cypress\e2e\cadastroEmailInv.cy.js" time="0.000" failures="0">
+  </testsuite>
+  <testsuite name="Cadastro com email invalido" timestamp="2026-01-22T18:35:38" tests="2" time="9.037" failures="0">
+    <testcase name="Cadastro com email invalido Realizar cadastro com email invalido" time="3.436" classname="Realizar cadastro com email invalido">
+    </testcase>
+    <testcase name="Cadastro com email invalido Realizar cadastro com email ja em uso" time="4.095" classname="Realizar cadastro com email ja em uso">
+    </testcase>
+  </testsuite>
+</testsuites>
