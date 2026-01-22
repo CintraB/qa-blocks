@@ -152,22 +152,6 @@ Screenshots são salvos em: `cypress/screenshots/`
 - **Evidências visuais** com screenshots
 - **Relatórios detalhados** para análise
 
-## Bugs Encontrados
-
-Durante os testes, foram identificados os seguintes bugs:
-
-**BUG #1 - Internacionalização**
-- **Descrição:** Mensagem de validação de email inválido aparece em inglês ("This is not a valid email.") mesmo quando a página está configurada em português (`/pt/registrar`)
-- **Localização:** Campo de email no formulário de cadastro
-- **Esperado:** Mensagem em português ("Este não é um email válido.")
-- **Evidência:** `cypress/screenshots/cadastroEmailInv.cy.js/cadastroInvalido.png`
-
-**BUG #2 - Internacionalização**
-- **Descrição:** Mensagem de validação de senhas diferentes aparece em inglês ("Passwords must match.") mesmo quando a página está configurada em português (`/pt/registrar`)
-- **Localização:** Campo de senha no formulário de cadastro
-- **Esperado:** Mensagem em português ("As senhas devem coincidir.")
-- **Evidência:** `cypress/screenshots/cadastroSenhaDif.cy.js/cadastroSenhaDif.png`
-
 ## Resultados da Última Execução
 
 ```
