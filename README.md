@@ -33,7 +33,6 @@ O projeto está organizado da seguinte forma:
 - **cypress/screenshots/** - Screenshots capturados durante os testes
 
 - **cypress/support/** - Configurações e comandos customizados:
-  - `commands.js` - Comandos reutilizáveis
   - `e2e.js` - Configurações globais
 
 - **cypress.config.js** - Arquivo de configuração do Cypress

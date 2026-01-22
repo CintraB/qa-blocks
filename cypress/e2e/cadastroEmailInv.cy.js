@@ -23,10 +23,9 @@ describe("Cadastro com email invalido", () => {
         //BUG: Mensagem de validação em inglês quando a página está em português (/pt/registrar)
         //Esperado: "Este não é um email válido." ou similar em português
         //Testando página em diferentes idiomas (pt, en, es) apresenta mensagem em inglês. Todo conteudo da página se mantem no idioma selecionado exceto a mensagem de validação.
-        cy.get('#email').parent().find('span.text-red-600').should('be.visible').and('contain', 'This is not a valid email.') //procurar por email ja em uso teste@gmail.com
+        cy.get('#email').parent().find('span.text-red-600').should('be.visible').and('contain', 'This is not a valid email.')
         cy.get('button[type="submit"]').should('be.disabled')
         cy.screenshot('aposcadastroInvalido')
-        //fazer um teste completo para passar um cadastro invalido
 
     })
 
