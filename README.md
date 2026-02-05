@@ -1,10 +1,10 @@
-# Automação de Testes - Blocks QA
+# Automação de Testes - QA
 
 Projeto de automação de testes E2E (ponta a ponta) para o fluxo de cadastro de usuários da plataforma Blocks.
 
 ## Sobre o Projeto
 
-Este projeto apresenta a implementação de uma estrutura de automação de testes de ponta a ponta (E2E) para fluxos de cadastro. O foco principal foi garantir a integridade do sistema através da validação rigorosa de cenários de sucesso e tratamento de erros.
+Este projeto demonstra minha experiência prática em automação de testes E2E, estruturação de frameworks QA e validação de qualidade em aplicações web.
 
 **Página testada:** https://www.blocksrvt.com/pt/registrar
 
