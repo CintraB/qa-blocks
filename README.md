@@ -4,7 +4,7 @@ Projeto de automação de testes E2E (ponta a ponta) para o fluxo de cadastro de
 
 ## Sobre o Projeto
 
-Este projeto foi desenvolvido como parte do desafio técnico. O objetivo é automatizar o fluxo de cadastro de usuários, garantindo que o formulário funcione corretamente em cenários de sucesso e validando comportamentos esperados em cenários de erro.
+Este projeto apresenta a implementação de uma estrutura de automação de testes de ponta a ponta (E2E) para fluxos de cadastro. O foco principal foi garantir a integridade do sistema através da validação rigorosa de cenários de sucesso e tratamento de erros.
 
 **Página testada:** https://www.blocksrvt.com/pt/registrar
 
