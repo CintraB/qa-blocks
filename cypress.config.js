@@ -12,10 +12,11 @@ module.exports = defineConfig({
       reportPageTitle: 'Relatório de testes',
       embeddedScreenshots: true,
       inlineAssets: true,
-      saveAllAttemps: true
+      saveAllAttempts: true
     }
   },
   e2e: {
+    baseUrl: 'https://www.blocksrvt.com',
     setupNodeEvents(on, config) {
       require('cypress-mochawesome-reporter/plugin')(on);
       return config;
