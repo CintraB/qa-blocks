@@ -68,3 +68,33 @@ jobs:
             cypress/reports
             cypress/screenshots
           retention-days: 14
+
+  bugs-conhecidos:
+    #Regressão dos bugs #07 e #08: validam o comportamento esperado e hoje falham de propósito.
+    #Assim como os testes de idioma, não marcam o workflow como quebrado.
+    name: Bugs conhecidos (falhas esperadas = bugs registrados)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: Baixar o código
+        uses: actions/checkout@v7
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+
+      - name: Rodar os testes de bugs conhecidos
+        uses: cypress-io/github-action@v7
+        with:
+          command: npm run test:bugs
+
+      - name: Guardar relatório e screenshots
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: relatorio-bugs-conhecidos
+          path: |
+            cypress/reports
+            cypress/screenshots
+          retention-days: 14

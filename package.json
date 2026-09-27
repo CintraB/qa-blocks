@@ -5,6 +5,7 @@
   "scripts": {
     "test": "cypress run --browser chrome",
     "test:idiomas": "cypress run --browser chrome --config specPattern=cypress/idiomas/**/*.cy.js",
+    "test:bugs": "cypress run --browser chrome --config specPattern=cypress/bugs-conhecidos/**/*.cy.js",
     "cy:open:chrome": "cypress open --browser chrome",
     "cy:run:chrome": "cypress run --browser chrome",
     "export:pdf": "node export-pdf.js",
