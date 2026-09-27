@@ -10,6 +10,37 @@
 | **Ferramenta** | Cypress v15.9.0 |
 | **Data** | 22/01/2026 |
 | **Última reexecução** | 27/09/2026 |
+| **Repositório** | [https://github.com/CintraB/qa-blocks](https://github.com/CintraB/qa-blocks) |
+
+---
+
+## Resumo Executivo
+
+Além da entrega original (22/01/2026), o projeto foi ampliado em 26 e 27/09/2026 com três frentes principais.
+
+**1. Achado crítico de privacidade (Bug #05, severidade alta, LGPD)**
+
+A API que o formulário consulta para verificar se um email já está cadastrado (`GET https://api.blocksrvt.com/v1/user/email/<email>`) responde **sem autenticação** com dados pessoais do titular da conta: endereço IP, geolocalização (cidade, CEP, latitude e longitude), provedor de internet, datas de cadastro e de aceite dos termos e dados do perfil. A resposta também diferencia email cadastrado (`HTTP 200`) de não cadastrado (`HTTP 404`), o que permite descobrir quem tem conta na Blocks. Uma verificação com uma conta que não foi criada pelos testes confirmou que os dados são **do titular**, e não de quem faz a consulta, e um dos campos (`partnerCode`) apresentou formato de CPF. O achado está embasado nos Arts. 5º, 6º (necessidade, segurança e prevenção) e 46 da LGPD, com prints das fontes oficiais, e é a **prioridade imediata** das recomendações. Nenhum dado pessoal de terceiros foi registrado ou exibido neste relatório.
+
+**2. Integração contínua (CI) no GitHub Actions**
+
+A suíte roda automaticamente no GitHub Actions a cada push na `main`, em pull requests e sob demanda ([workflow `e2e.yml`](https://github.com/CintraB/qa-blocks/actions/workflows/e2e.yml)), em três etapas independentes:
+
+| Etapa | O que roda | Efeito no resultado |
+|-------|------------|---------------------|
+| Suíte principal (`npm test`) | 47 testes de cadastro, validações, responsividade e feedback | Define o status do workflow e o selo do README; cada teste tem 1 nova tentativa no CI para absorver instabilidade de rede |
+| Testes de idioma (`npm run test:idiomas`) | Textos da página em português, espanhol e inglês | Falham de propósito (bugs registrados), sem quebrar o workflow |
+| Bugs conhecidos (`npm run test:bugs`) | Regressão dos Bugs #07, #08 e #09 | Falham de propósito até a correção, sem quebrar o workflow |
+
+O relatório HTML e os screenshots de cada execução ficam disponíveis como artefatos por 14 dias. Não há execução agendada, porque cada execução cria contas reais no ambiente da Blocks. O projeto não tem etapa de implantação (CD), pois não publica nenhum software: a entrega de cada execução são os relatórios.
+
+**3. Testes de UI/UX**
+
+- **Responsividade (CT-11):** 4 aparelhos emulados como no modo de dispositivo do DevTools (iPhone SE, iPhone 14, Galaxy S20 e iPad, com toque e user agent do aparelho) e 4 larguras de desktop, incluindo o equivalente a zoom de 200% e 400%. Todos passaram.
+- **Feedback do formulário (CT-12):** mostrar/ocultar senha, momento das mensagens de erro e campos obrigatórios em branco, com base nas diretrizes da Nielsen Norman Group. Observações: o erro do email aparece já na primeira tecla digitada, e campos obrigatórios em branco não exibem mensagem.
+- **Duplo clique no botão de cadastro (Bug #09, severidade média):** o cadastro é enviado duas vezes; uma requisição cria a conta e a outra recebe erro 500, e a tela fica com dois avisos "Carregando..." que não somem. Reproduzido em 6 de 6 execuções.
+
+**Resultado atual:** suíte principal com 47 de 47 testes aprovados e 9 bugs registrados (1 de severidade alta, 3 médios e 5 baixos), com evidências e fontes em cada apontamento.
 
 ---
 
@@ -32,6 +63,8 @@ Os testes cobriram os seguintes aspectos:
 - Cenários positivos e negativos
 - Mensagens de erro
 - Comportamento do botão de submissão
+- Responsividade em celular, tablet e desktop (ampliação de 27/09/2026)
+- Feedback do formulário: mostrar/ocultar senha, momento das mensagens e envio repetido (ampliação de 27/09/2026)
 
 ---
 
@@ -62,11 +95,10 @@ A estratégia adotada foi de **testes E2E (End-to-End) automatizados**, simuland
 | **CT-08** | Campos obrigatórios, um de cada vez (10 casos) | Negativo | Passou (10/10) |
 | **CT-09** | Senha no servidor: limite de 256 caracteres, login e senha truncada em 72 | Positivo/Negativo | Passou |
 | **CT-10** | Variações de nome, país, área de atuação e email (10 casos) | Positivo/Negativo | Passou (10/10) |
-| **CT-11** | Acessibilidade: uso do cadastro somente pelo teclado (5 casos) | Positivo | Passou (5/5) |
-| **CT-12** | Acessibilidade: varredura WCAG (axe-core), caixas de seleção, campos de senha e autocomplete (4 casos, suíte de bugs conhecidos) | Negativo | Falhou (4/4) - Bugs #09 a #13 |
-| **CT-13** | Responsividade: 4 aparelhos emulados e 4 larguras de desktop, incluindo zoom de 200% e 400% (8 casos) | Positivo | Passou (8/8) |
+| **CT-11** | Responsividade: 4 aparelhos emulados e 4 larguras de desktop, incluindo zoom de 200% e 400% (8 casos) | Positivo | Passou (8/8) |
+| **CT-12** | Feedback do formulário: mostrar/ocultar senha, momento da validação e campos em branco (3 casos) | Positivo | Passou (3/3) |
 
-> CT-01 a CT-05 são os cenários da entrega original (22/01/2026). O login no CT-01 e os cenários CT-06 a CT-13 foram adicionados em 27/09/2026.
+> CT-01 a CT-05 são os cenários da entrega original (22/01/2026). O login no CT-01 e os cenários CT-06 a CT-12 foram adicionados em 27/09/2026. O envio do cadastro com duplo clique fica na suíte de bugs conhecidos (Bug #09).
 
 ### Cenário de Teste CT-01 - Cadastro de usuário com sucesso
 
@@ -233,7 +265,9 @@ Evidências (um print por campo faltando):
 
 ### Cenário de Teste CT-09 - Senha no servidor (limite de 256 caracteres e senha truncada)
 
-- Contexto: o formulário não tem limite máximo de senha, mas o cadastro usa o **AWS Cognito**, cujo limite é de **256 caracteres** (confirmado pela própria resposta da API no Bug #08).
+- Contexto: o formulário não tem limite máximo de senha, mas a autenticação da Blocks usa o **AWS Cognito** (serviço de login da Amazon), que aceita senhas de até **256 caracteres**.
+- **Como se sabe que é o Cognito:** no login, o navegador envia a senha diretamente para `https://cognito-idp.us-east-1.amazonaws.com/` (operações `AWSCognitoIdentityProviderService.InitiateAuth` e `RespondToAuthChallenge`) e grava a sessão em chaves `CognitoIdentityServiceProvider.<clientId>.<email>.idToken`, `accessToken` e `refreshToken`, o formato da biblioteca do Cognito. Os erros do cadastro também são do Cognito: `InvalidParameterException` com o parâmetro `temporaryPassword` (Bug #08) e `UsernameExistsException` (Bug #09).
+- **Limite de 256 caracteres:** a documentação oficial da AWS define para o parâmetro `TemporaryPassword` da criação de usuário (`AdminCreateUser`) *"Length Constraints: Maximum length of 256."*, o mesmo parâmetro e o mesmo valor citados no erro do Bug #08.
 - Técnica: **análise de valor-limite no servidor**, mais um teste de segurança de comparação de senha: sistemas que usam o algoritmo bcrypt ignoram o que passa de 72 bytes, e aí uma senha longa "funciona" digitando só o começo.
 
 - Critérios de Aceite Validados:
@@ -245,6 +279,14 @@ Evidências (um print por campo faltando):
 
 Evidência: [evidencias/cypress/cadastroSenha.cy.js/senha-256-truncada-72-recusada.png](evidencias/cypress/cadastroSenha.cy.js/senha-256-truncada-72-recusada.png)
 
+**Evidências do uso do Cognito e do limite (capturadas em 27/09/2026):** login com a conta criada pela suíte no CT-01, com as requisições ao Cognito e as chaves de sessão (valores dos tokens omitidos e identificador do app trocado por `<clientId>`), e o trecho da documentação da AWS com o link de origem no topo.
+
+![Login da Blocks enviando a autenticação ao AWS Cognito](evidencias/cognito/login-blocks-chama-cognito.png)
+
+![Documentação da AWS - AdminCreateUser, TemporaryPassword com no máximo 256 caracteres](evidencias/cognito/aws-cognito-temporarypassword-256.png)
+
+Fonte: [https://docs.aws.amazon.com/cognito-user-identity-pools/latest/APIReference/API_AdminCreateUser.html](https://docs.aws.amazon.com/cognito-user-identity-pools/latest/APIReference/API_AdminCreateUser.html)
+
 **Observação (UX, sem classificação como bug):** o login com senha errada exibe apenas "Algo deu errado. Por favor, tente novamente.", a mesma mensagem genérica do Bug #07, em vez de algo como "Email ou senha incorretos".
 
 ### Cenário de Teste CT-10 - Variações de nome, país, área de atuação e email
@@ -255,7 +297,7 @@ Evidência: [evidencias/cypress/cadastroSenha.cy.js/senha-256-truncada-72-recusa
 |-------|------|----------|-----------|
 | Nome | 1 caractere | Aceitar | Passou |
 | Nome | Apóstrofo, hífen e acento (`Ana-Luíza D'Ávila Conceição`) | Aceitar | Passou |
-| Nome | 300 caracteres | Aceitar (não há limite) | Passou |
+| Nome | 300 caracteres | Aceitar (o campo não define tamanho máximo) | Passou |
 | Nome | Só espaços | Recusar | Passou |
 | País | Digitado sem escolher da lista | Recusar (o texto é descartado) | Passou |
 | Área de atuação | Duas áreas marcadas | Aceitar | Passou |
@@ -266,51 +308,14 @@ Evidência: [evidencias/cypress/cadastroSenha.cy.js/senha-256-truncada-72-recusa
 
 **Observações (sem classificação como bug):**
 - **Nome só com espaços:** o botão fica desabilitado **sem nenhuma mensagem** explicando o motivo, o mesmo padrão da sugestão de UX do CT-04. Evidência: [evidencias/cypress/cadastroCampos.cy.js/nome-so-espacos.png](evidencias/cypress/cadastroCampos.cy.js/nome-so-espacos.png)
-- **Nome sem limite de tamanho:** 300 caracteres são aceitos no formulário e também pelo servidor (em sondagem de 27/09/2026, o cadastro com nome de 300 caracteres foi concluído). Vale definir um limite para evitar problemas de exibição e de armazenamento.
+- **Nome sem tamanho máximo definido:** o campo não tem o atributo `maxlength` e o formulário não exibe regra de tamanho; um nome de 300 caracteres (valor escolhido para o teste, bem acima de um nome real) foi aceito pelo formulário e pelo servidor (sondagem de 27/09/2026). Vale definir um limite para evitar problemas de exibição e de armazenamento.
 - **Email com espaços antes e depois** (comum ao copiar e colar) é recusado como inválido em vez de ter os espaços removidos automaticamente. Evidência: [evidencias/cypress/cadastroCampos.cy.js/email-com-espacos.png](evidencias/cypress/cadastroCampos.cy.js/email-com-espacos.png)
 
 Evidência das duas áreas marcadas: [evidencias/cypress/cadastroCampos.cy.js/duas-areas-marcadas.png](evidencias/cypress/cadastroCampos.cy.js/duas-areas-marcadas.png)
 
-### Cenário de Teste CT-11 - Acessibilidade: uso do cadastro somente pelo teclado
+### Cenário de Teste CT-11 - Responsividade
 
-- Referência: WCAG 2.2, critérios **2.1.1 Teclado** (nível A) e **2.4.7 Foco Visível** (nível AA).
-- Ferramenta: as teclas Tab, Enter e Espaço são enviadas pelo protocolo do Chrome (`cypress-real-events`), como um teclado de verdade.
-
-| Caso | Resultado |
-|------|-----------|
-| A ordem do Tab segue a ordem visual (Nome, Sobrenome, Email, País) | Passou |
-| O campo que recebe o foco pelo teclado tem indicador visível | Passou |
-| País selecionado pelo teclado (digitar, Enter e Tab); o país permanece no campo | Passou |
-| Idioma da Família selecionado pelo teclado (Enter abre, Tab chega à opção, Enter escolhe) | Passou |
-| Área de atuação e aceite da política marcados com a tecla Espaço | Passou |
-
-**Resultado:** Passou (5/5). O cadastro pode ser preenchido somente pelo teclado.
-
-**Observações (sem classificação como bug):**
-- Nas listas de "Idioma da Família" e "Como você ficou sabendo", as setas do teclado não movem a seleção; as opções são alcançadas com Tab. O uso pelo teclado é possível, mas difere do padrão esperado para listas de seleção.
-- Ao sair do campo de país com Tab, o foco vai para a seta do campo, um botão sem nome acessível (incluído no Bug #09).
-- Na investigação, a ferramenta de teclado real (`realType`) não conseguiu digitar no campo de país e o Enter selecionou "Afghanistan". A digitação foi conferida manualmente em um navegador Chrome comum, onde o país foi selecionado corretamente; por isso o comportamento foi atribuído à ferramenta e **não** registrado como bug.
-
-Evidência: [evidencias/cypress/acessibilidadeTeclado.cy.js/teclado-areas-e-politica.png](evidencias/cypress/acessibilidadeTeclado.cy.js/teclado-areas-e-politica.png)
-
-### Cenário de Teste CT-12 - Acessibilidade: varredura WCAG, caixas de seleção e campos de senha
-
-- Referência: WCAG 2.2 (tradução autorizada para português do Brasil) e Lei Brasileira de Inclusão (Lei nº 13.146/2015), Art. 63.
-- Ferramentas: **axe-core 4.13** (motor de regras de acessibilidade, via `cypress-axe`) com as regras WCAG 2.0, 2.1 e 2.2 nos níveis A e AA, e leitura da árvore de acessibilidade do navegador (o que um leitor de tela recebe).
-- Os 3 testes validam o comportamento esperado e ficam na suíte de bugs conhecidos (`npm run test:bugs`).
-
-| Teste | Esperado | Resultado |
-|-------|----------|-----------|
-| Varredura axe-core (WCAG A/AA) | Nenhuma violação crítica ou séria | Falhou: 3 regras violadas (Bugs #09, #11 e #12) |
-| Caixas de seleção (6 áreas e aceite da política) | Papel `checkbox`, nome e estado marcado/desmarcado | Falhou: são botões sem nome e sem estado (Bug #09) |
-| Campos de senha | Nome acessível que descreve a finalidade | Falhou: nome anunciado é "••••••••" (Bug #10) |
-| Propósito dos campos (`autocomplete`) | Valores da seção 7 da WCAG 2.2 em nome, sobrenome, email, país e senhas | Falhou: atributo ausente e `off` no país (Bug #13) |
-
-**Observação (sem classificação como bug):** nos demais campos de texto, os rótulos visíveis ("Nome", "Email"...) não estão associados aos campos; o nome acessível vem do placeholder, que tem o mesmo texto. O axe-core aceita o placeholder como nome, mas ele some ao digitar, e a associação do rótulo (`<label for>`) é a prática recomendada.
-
-### Cenário de Teste CT-13 - Responsividade
-
-- Referência: WCAG 2.2, critério **1.4.10 Realinhar** (nível AA): o conteúdo deve ser apresentado sem perda de informação ou funcionalidade e sem rolagem em duas dimensões com **320 pixels CSS** de largura, o que equivale a uma tela de 1280 pixels com **zoom de 400%** (nota do próprio critério).
+- Objetivo: o formulário deve funcionar sem rolagem horizontal e sem conteúdo fora da tela em celular, tablet e desktop. As larguras de 320 px e 640 px equivalem a uma tela de 1280 px com **zoom de 400%** e **200%**.
 - **Como os aparelhos foram emulados:** do mesmo modo que o modo de dispositivo do DevTools do Chrome, pelo protocolo do Chrome (CDP): tamanho da tela, **toque** (a página passa a detectar `pointer: coarse` e eventos de toque) e **user agent do aparelho**. Cada teste confirma, de dentro da página, que a emulação está ativa antes de verificar o layout.
 - **Limitação:** é uma emulação no motor do Chrome. A densidade de tela (`devicePixelRatio`) não chega à página, que roda dentro do quadro do Cypress (não afeta o layout), e o teste não substitui a verificação em aparelho real, principalmente no Safari do iOS.
 
@@ -325,12 +330,11 @@ Evidência: [evidencias/cypress/acessibilidadeTeclado.cy.js/teclado-areas-e-poli
 | Desktop | 1280 x 800 | - | Sim | Sim | Sim | - | Passou |
 | Desktop | 1920 x 1080 | - | Sim | Sim | Sim | - | Passou |
 
-**Resultado:** Passou (8/8). O formulário atende ao critério 1.4.10 e funciona com toque nos aparelhos emulados.
+**Resultado:** Passou (8/8). O formulário se adapta a todos os tamanhos testados e funciona com toque nos aparelhos emulados.
 
 **Observações (sem classificação como bug):**
 - **Seta do campo "Como você ficou sabendo sobre a Blocks?":** com 320 px de largura, o texto ocupa todo o campo e a seta some, e no iPhone SE o texto encosta nela; o usuário pode não perceber que o campo é uma lista. Os campos de seleção também usam fonte menor que os demais (12 px no celular). Evidências: [evidencias/cypress/responsividade.cy.js/resp-desktop-com-zoom-de-400-320-px-1-topo.png](evidencias/cypress/responsividade.cy.js/resp-desktop-com-zoom-de-400-320-px-1-topo.png) e [evidencias/cypress/responsividade.cy.js/resp-iphone-se-1-topo.png](evidencias/cypress/responsividade.cy.js/resp-iphone-se-1-topo.png)
-- **Área de toque:** as caixas de seleção medem 16 x 16 px e o botão de cadastro tem 36 px de altura. O axe-core considera as caixas de seleção dentro do critério 2.5.8 pela exceção de espaçamento; apenas a seta do campo de país não atende (Bug #12).
-- **Teclado do celular no campo de email:** o campo é `type="text"`, então o celular não abre o teclado próprio para email (com @). Ver também o Bug #13.
+- **Teclado do celular no campo de email:** o campo é `type="text"`, então o celular não abre o teclado próprio para email (com @).
 
 Evidências (topo e rodapé da página em cada tamanho):
 
@@ -342,6 +346,31 @@ Evidências (topo e rodapé da página em cada tamanho):
 - Desktop com zoom de 200%: [evidencias/cypress/responsividade.cy.js/resp-desktop-com-zoom-de-200-640-px-1-topo.png](evidencias/cypress/responsividade.cy.js/resp-desktop-com-zoom-de-200-640-px-1-topo.png) e [evidencias/cypress/responsividade.cy.js/resp-desktop-com-zoom-de-200-640-px-2-rodape.png](evidencias/cypress/responsividade.cy.js/resp-desktop-com-zoom-de-200-640-px-2-rodape.png)
 - Desktop 1280 px: [evidencias/cypress/responsividade.cy.js/resp-desktop-1280-px-1-topo.png](evidencias/cypress/responsividade.cy.js/resp-desktop-1280-px-1-topo.png) e [evidencias/cypress/responsividade.cy.js/resp-desktop-1280-px-2-rodape.png](evidencias/cypress/responsividade.cy.js/resp-desktop-1280-px-2-rodape.png)
 - Desktop 1920 px: [evidencias/cypress/responsividade.cy.js/resp-desktop-1920-px-1-topo.png](evidencias/cypress/responsividade.cy.js/resp-desktop-1920-px-1-topo.png) e [evidencias/cypress/responsividade.cy.js/resp-desktop-1920-px-2-rodape.png](evidencias/cypress/responsividade.cy.js/resp-desktop-1920-px-2-rodape.png)
+
+### Cenário de Teste CT-12 - Feedback do formulário
+
+- Referência: diretrizes de usabilidade da Nielsen Norman Group para erros em formulários e as 10 heurísticas de Nielsen (fontes e prints no Bug #09 e abaixo).
+- Nenhum cadastro é enviado nesta spec (`cadastroFeedback.cy.js`). O envio com duplo clique está no Bug #09.
+
+| Caso | Resultado |
+|------|-----------|
+| O olho de cada campo de senha mostra e oculta **somente o próprio campo**, sem perder o valor digitado, e o ícone alterna entre olho aberto e fechado | Passou |
+| O erro do email aparece para email inválido e **some quando o email é corrigido** | Passou |
+| Nome, sobrenome e email deixados em branco não exibem mensagem ao sair do campo; só o botão de cadastro fica desabilitado | Passou (comportamento atual documentado) |
+
+**Resultado:** Passou (3/3).
+
+**Observações (UX, sem classificação como bug):**
+- **Erro exibido antes de o usuário terminar de digitar:** a mensagem "This is not a valid email." aparece já na **primeira tecla** digitada no campo de email, com o campo ainda em foco. O mesmo acontece com as regras de senha. A Nielsen Norman Group recomenda o contrário: *"In most cases, avoid showing an error until the user has finished with the field and moved to the next field. It's frustrating to see an error message before being given the opportunity to finish typing."* (diretriz 7, "Don't Validate Fields Before Input is Complete"). Sugestão: validar ao sair do campo e, depois do primeiro erro, revalidar a cada tecla para mostrar a correção. Evidência: [evidencias/cypress/cadastroFeedback.cy.js/erro-email-na-primeira-tecla.png](evidencias/cypress/cadastroFeedback.cy.js/erro-email-na-primeira-tecla.png)
+- **Campo obrigatório em branco sem mensagem:** o mesmo padrão já observado no CT-04 (aceite da política) e no CT-10 (nome só com espaços). O botão fica desabilitado, mas nada indica qual campo falta. Evidência: [evidencias/cypress/cadastroFeedback.cy.js/obrigatorios-em-branco-sem-mensagem.png](evidencias/cypress/cadastroFeedback.cy.js/obrigatorios-em-branco-sem-mensagem.png)
+- **Regras de senha uma de cada vez:** a senha mostra só a primeira regra não atendida (ex: "Password must contain at least one uppercase letter"); o usuário descobre as demais uma a uma. Uma lista com todas as regras e o estado de cada uma evitaria tentativas repetidas.
+- **Mostrar/ocultar senha:** funciona bem e de forma independente em cada campo.
+
+Evidências do olho da senha: [evidencias/cypress/cadastroFeedback.cy.js/olho-mostrando-password.png](evidencias/cypress/cadastroFeedback.cy.js/olho-mostrando-password.png) e [evidencias/cypress/cadastroFeedback.cy.js/olho-mostrando-confirm_password.png](evidencias/cypress/cadastroFeedback.cy.js/olho-mostrando-confirm_password.png)
+
+**Print da fonte (capturado em 27/09/2026, com o link de origem no topo):**
+
+![Nielsen Norman Group - diretriz 7: não validar antes de o usuário terminar de digitar](evidencias/ux/nng-nao-validar-antes-de-terminar.png)
 
 ---
 
@@ -383,16 +412,16 @@ As evidências (screenshots) deste relatório são da reexecução de 26/09/2026
 
 ### Ampliação da Suíte - 27/09/2026
 
-Novos cenários (CT-06 a CT-11 e CT-13) e login no CT-01, todos na suíte principal (`npm test`):
+Novos cenários (CT-06 a CT-12) e login no CT-01, todos na suíte principal (`npm test`):
 
 ```
 Resumo da Suíte Principal (27/09/2026)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Total de Testes:     49
-Testes Aprovados:    49
+Total de Testes:     47
+Testes Aprovados:    47
 Testes Reprovados:   0
 Taxa de Sucesso:     100%
-Tempo Total:         ~3 min 38 s
+Tempo Total:         ~3 min 33 s
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
@@ -405,21 +434,18 @@ Tempo Total:         ~3 min 38 s
 | `cadastroSenha.cy.js` | 10 | CT-07 e CT-09 |
 | `cadastroObrigatorios.cy.js` | 10 | CT-08 |
 | `cadastroCampos.cy.js` | 10 | CT-10 |
-| `acessibilidadeTeclado.cy.js` | 5 | CT-11 |
-| `responsividade.cy.js` | 8 | CT-13 |
+| `responsividade.cy.js` | 8 | CT-11 |
+| `cadastroFeedback.cy.js` | 3 | CT-12 |
 
 ### Testes de Bugs Conhecidos (`npm run test:bugs`)
 
-Suíte separada (`cypress/bugs-conhecidos/`) com a regressão dos bugs #07 a #13. Assim como os testes de idioma, ela valida o comportamento **esperado**: hoje os 6 testes falham de propósito e devem passar quando os bugs forem corrigidos. Fica fora da suíte principal e roda em um job próprio no CI, sem afetar o selo.
+Suíte separada (`cypress/bugs-conhecidos/`) com a regressão dos bugs #07 a #09. Assim como os testes de idioma, ela valida o comportamento **esperado**: hoje os 3 testes falham de propósito e devem passar quando os bugs forem corrigidos. Fica fora da suíte principal e roda em um job próprio no CI, sem afetar o selo.
 
 | Teste | Esperado | Resultado hoje |
 |-------|----------|----------------|
 | Bug #07 - primeiro login após o cadastro | Nenhum aviso "Algo deu errado" | Falhou (o aviso aparece) |
 | Bug #08 - senha de 257 caracteres | Mensagem de erro e permanência no cadastro | Falhou (redireciona para o login como se fosse sucesso) |
-| Bugs #09, #11 e #12 - varredura axe-core (WCAG A/AA) | Nenhuma violação crítica ou séria | Falhou (3 regras violadas) |
-| Bug #09 - caixas de seleção | Papel, nome e estado acessíveis | Falhou (botões sem nome e sem estado) |
-| Bug #10 - campos de senha | Nome acessível que descreve a finalidade | Falhou (nome "••••••••") |
-| Bug #13 - propósito dos campos | `autocomplete` conforme a WCAG 2.2 | Falhou (ausente e `off` no país) |
+| Bug #09 - duplo clique no cadastro | Uma única requisição de criação | Falhou (2 requisições: 201 e 500) |
 
 ### Testes de Idioma (`npm run test:idiomas`)
 
@@ -517,11 +543,26 @@ Tempo Total:         ~33 segundos
 | **Status** | Identificado em 26/09/2026 |
 | **Evidência** | [evidencias/bug05-api-resposta-mascarada.png](evidencias/bug05-api-resposta-mascarada.png) |
 
-**Como foi identificado:** durante a manutenção da suíte, ao investigar a espera fixa `cy.wait(500)` após digitar o email, foi observado que a página faz uma requisição `GET` à API acima para validar o email. A verificação foi feita **somente com uma conta criada pela própria suíte de testes** (CT-01, email `teste1790470745345@gmail.com`), sem acessar dados de terceiros e sem nenhuma exploração além da observação da resposta.
+**Como foi identificado:** durante a manutenção da suíte, ao investigar a espera fixa `cy.wait(500)` após digitar o email, foi observado que a página faz uma requisição `GET` à API acima para validar o email. A evidência foi feita **somente com uma conta criada pela própria suíte de testes** (CT-01, email `teste1790470745345@gmail.com`), sem nenhuma exploração além da observação da resposta. A verificação complementar com uma conta que não foi criada pela suíte, descrita abaixo, registrou apenas resultados sim/não, sem nenhum valor pessoal.
 
 **Evidência (resposta real da API):** os valores pessoais foram mascarados e os grupos sem dado pessoal (moeda, dados do país, idioma, continente, segurança e fuso horário) foram recolhidos na própria captura. Os nomes dos campos pessoais estão destacados em amarelo.
 
 ![Bug #05 - Resposta da API com dados pessoais (mascarados)](evidencias/bug05-api-resposta-mascarada.png)
+
+**Verificação de que os dados são do titular, e não de quem consulta (27/09/2026):** como as contas da suíte foram criadas na mesma máquina e rede que faz a consulta, o IP e a localização retornados coincidiam com os do testador, o que deixava em aberto se a API geolocalizava quem consulta. Para descartar essa hipótese, foi consultado um email de exemplo que já constava do projeto original como "email já em uso" e que **não foi criado pela suíte**. A comparação foi feita apenas com resultados sim/não e nomes de campos; **nenhum valor pessoal dessa conta foi registrado, reproduzido ou capturado em print**.
+
+| Verificação | Resultado |
+|-------------|-----------|
+| Resposta sem autenticação | `HTTP 200`, com os mesmos 22 campos da conta própria |
+| IP retornado igual ao IP de quem consultou | Não |
+| Localização retornada igual à de quem consultou | Não |
+| Data do registro do IP (`ipDate`) e da hora local (`time_zone.current_time`) | Iguais à data de criação da conta (`createdAt`), em 2024 |
+
+Conclusão: IP, provedor e localização são **gravados no cadastro e devolvidos a qualquer pessoa que informe o email**. São dados do titular da conta, e não de quem faz a consulta.
+
+**Possível CPF no campo `partnerCode`:** na mesma verificação, o campo `partnerCode` retornou um número de **11 dígitos com dígitos verificadores válidos de CPF**. O número não foi consultado em nenhuma base externa. Se for o CPF do titular, trata-se de dado pessoal identificador direto (LGPD, Art. 5º, I), o que **agrava a severidade** deste bug. Recomenda-se que a Blocks confirme internamente o conteúdo desse campo.
+
+**Complemento:** a resposta do próprio cadastro (`POST https://api.blocksrvt.com/v1/user`, `HTTP 201`) também devolve ao navegador o mesmo bloco `ip` (endereço IP, provedor e geolocalização), observado no teste do Bug #09. Como só chega a quem acabou de se cadastrar, o impacto é menor, mas vale revisar pelo mesmo princípio da necessidade (Art. 6º, III).
 
 #### Embasamento legal - Lei Geral de Proteção de Dados Pessoais (Lei nº 13.709/2018)
 
@@ -600,137 +641,37 @@ Complemento - página oficial do Governo Federal sobre a LGPD: [https://www.gov.
 
 ![Bug #08 - cadastro redirecionado para o login com a API respondendo HTTP 500](evidencias/bugs-conhecidos/bug08-senha-257-cadastro.png)
 
-### Bugs de Acessibilidade (#09 a #13)
+> **Observação (sem evidência capturada, não classificada como bug):** na página em espanhol, as opções "Other" e "ChatGPT / Gemini / Other AI" do campo "¿Cómo te enteraste de Blocks?" aparecem em inglês.
 
-Identificados em 27/09/2026 pelo CT-12, com o axe-core 4.13 (Bugs #09, #11 e #12), a leitura dos atributos dos campos (Bug #13) (regras WCAG 2.0, 2.1 e 2.2, níveis A e AA) e a leitura da árvore de acessibilidade do navegador (Bugs #09 e #10).
-
-**Varredura axe-core na página de cadastro** (contorno vermelho nos elementos com violação e painel com o resultado, adicionados pelo teste):
-
-![Varredura axe-core - 3 regras violadas na página de cadastro](evidencias/acessibilidade/a11y-axe-violacoes.png)
-
-### Bug #09 - Controles Sem Nome, Papel e Estado Acessíveis
+### Bug #09 - Duplo Clique no Botão de Cadastro Envia o Cadastro Duas Vezes
 
 | Campo | Detalhes |
 |-------|----------|
-| **Descrição** | 10 controles do formulário são botões sem nome acessível (regra `button-name` do axe-core, impacto **crítico**). As caixas de seleção (6 áreas de atuação e o aceite da política) são botões sem papel de caixa de seleção e sem estado de marcada/desmarcada |
-| **Ambiente** | `/pt/registrar` |
-| **Localização** | Caixas de seleção das áreas de atuação e do aceite da política, os 2 botões de mostrar/ocultar senha e a seta do campo de país |
-| **Comportamento Atual** | O leitor de tela anuncia apenas "botão", sem dizer qual é nem se está marcado. Mesmo com "Estudante" marcada na tela, o estado não é informado (`papel=button`, `nome=(vazio)`, `marcado=(não informado)`) |
-| **Comportamento Esperado** | Caixas de seleção com papel `checkbox` (elemento nativo ou `role="checkbox"`), estado `aria-checked` e nome associado ao texto ao lado; botões de ícone com `aria-label` (ex: "Mostrar senha") |
-| **Critério WCAG 2.2** | **4.1.2 Nome, Função, Valor (Nível A)** |
-| **Severidade** | **Alta** |
-| **Impacto** | Uma pessoa cega que usa leitor de tela não consegue saber quais áreas marcou nem confirmar que aceitou a política de privacidade e os termos de uso, que é obrigatório para concluir o cadastro |
-| **Status** | Identificado em 27/09/2026 |
-| **Evidência** | [evidencias/acessibilidade/a11y-caixas-de-selecao.png](evidencias/acessibilidade/a11y-caixas-de-selecao.png) e [evidencias/acessibilidade/a11y-axe-violacoes.png](evidencias/acessibilidade/a11y-axe-violacoes.png) |
-
-![Bug #09 - o que a tecnologia assistiva recebe de cada caixa de seleção](evidencias/acessibilidade/a11y-caixas-de-selecao.png)
-
-### Bug #10 - Campos de Senha Anunciados como "••••••••"
-
-| Campo | Detalhes |
-|-------|----------|
-| **Descrição** | Os campos "Senha" e "Confirme sua Senha" não têm rótulo associado; o nome acessível vem do placeholder, que é "••••••••" |
-| **Ambiente** | `/pt/registrar` |
-| **Localização** | Campos `#password` e `#confirm_password` |
-| **Comportamento Atual** | O leitor de tela anuncia os dois campos com o nome "••••••••", sem indicar que são de senha nem qual deles é a confirmação |
-| **Comportamento Esperado** | Os rótulos visíveis "Senha" e "Confirme sua Senha" associados aos campos (`<label for>` ou `aria-labelledby`) |
-| **Critério WCAG 2.2** | **2.4.6 Cabeçalhos e Rótulos (Nível AA)** e **4.1.2 Nome, Função, Valor (Nível A)** |
+| **Descrição** | Um duplo clique no botão de cadastro envia **duas** requisições de criação de conta. Uma delas cria a conta; a outra é recusada pelo servidor com erro 500 porque a conta já existe |
+| **Ambiente** | `/pt/registrar` → API `POST https://api.blocksrvt.com/v1/user` |
+| **Localização** | Botão de envio do formulário de cadastro |
+| **Comportamento Atual** | (1) O botão continua clicável enquanto o primeiro envio está em andamento; (2) um envio recebe `HTTP 201` (conta criada) e o outro `HTTP 500` com `{"code":"UsernameExistsException","error":"User account already exists"}` (a ordem das respostas variou entre as execuções); (3) a tela de login exibe **dois avisos "Carregando..."** empilhados, que permanecem depois de os dois envios terminarem (no cadastro com um clique, nenhum aviso de carregamento fica na tela) |
+| **Comportamento Esperado** | Um único envio: desabilitar o botão (ou ignorar novos cliques) assim que o envio começa e exibir um único aviso de progresso, que termina com a confirmação do cadastro |
+| **Reprodução** | **6 de 6** execuções em 27/09/2026 (1 exploratória e 5 do teste de regressão `npm run test:bugs`) |
 | **Severidade** | Média |
-| **Impacto** | Usuários de leitor de tela não identificam os campos de senha e podem preencher a confirmação no lugar errado |
+| **Impacto** | Cada duplo clique gera um erro 500 no servidor e avisos duplicados que não se resolvem, deixando o usuário sem saber se o cadastro terminou. Hoje, a única proteção contra uma conta duplicada é a recusa do provedor de autenticação no segundo envio |
+| **Referência** | Heurística #5 de Nielsen, Prevenção de Erros: *"Good error messages are important, but the best designs carefully prevent problems from occurring in the first place."*; e heurística #1, Visibilidade do Status do Sistema: *"The design should always keep users informed about what is going on, through appropriate feedback within a reasonable amount of time."* |
 | **Status** | Identificado em 27/09/2026 |
-| **Evidência** | [evidencias/acessibilidade/a11y-campos-de-senha.png](evidencias/acessibilidade/a11y-campos-de-senha.png) |
+| **Evidência** | [evidencias/bugs-conhecidos/bug09-duplo-clique-avisos.png](evidencias/bugs-conhecidos/bug09-duplo-clique-avisos.png) |
 
-![Bug #10 - nome acessível dos campos de senha](evidencias/acessibilidade/a11y-campos-de-senha.png)
+**Como foi identificado:** o teste de regressão faz um duplo clique no botão de cadastro com o formulário válido e conta as requisições `POST /v1/user`. O print mostra a URL da tela para onde o usuário foi levado (`/pt/login`), os dois avisos "Carregando..." e um painel adicionado pelo teste com o status e a resposta de cada envio (o corpo da resposta de sucesso é omitido no painel porque traz os dados do Bug #05).
 
-### Bug #11 - Contraste Insuficiente em Textos do Formulário
+![Bug #09 - duplo clique: dois envios (201 e 500) e dois avisos "Carregando..."](evidencias/bugs-conhecidos/bug09-duplo-clique-avisos.png)
 
-| Campo | Detalhes |
-|-------|----------|
-| **Descrição** | 3 textos do formulário têm contraste abaixo do mínimo (regra `color-contrast` do axe-core, impacto sério) |
-| **Ambiente** | `/pt/registrar` |
-| **Localização** | Placeholder do campo de país e textos exibidos nos campos "Idioma da Família" e "Como você ficou sabendo sobre a Blocks?" |
-| **Comportamento Atual** | Texto cinza claro sobre fundo claro, abaixo da relação de contraste de 4.5:1 |
-| **Comportamento Esperado** | Relação de contraste de, no mínimo, 4.5:1 para texto normal |
-| **Critério WCAG 2.2** | **1.4.3 Contraste (Mínimo) (Nível AA)** |
-| **Severidade** | Baixa |
-| **Impacto** | Dificuldade de leitura para pessoas com baixa visão e em telas com muito brilho |
-| **Status** | Identificado em 27/09/2026 |
-| **Evidência** | [evidencias/acessibilidade/a11y-axe-violacoes.png](evidencias/acessibilidade/a11y-axe-violacoes.png) |
-
-### Bug #12 - Área de Toque Pequena na Seta do Campo de País
-
-| Campo | Detalhes |
-|-------|----------|
-| **Descrição** | O botão de seta do campo de país tem área de toque menor que 24 x 24 pixels, sem espaçamento suficiente (regra `target-size` do axe-core, impacto sério) |
-| **Ambiente** | `/pt/registrar` |
-| **Localização** | Seta do campo "País" |
-| **Comportamento Atual** | Alvo de toque abaixo de 24 x 24 pixels CSS |
-| **Comportamento Esperado** | Alvo de pelo menos 24 x 24 pixels CSS ou espaçamento que atenda à exceção do critério |
-| **Critério WCAG 2.2** | **2.5.8 Tamanho do Alvo (Mínimo) (Nível AA)** |
-| **Severidade** | Baixa |
-| **Impacto** | Dificuldade de acionar a seta em telas de toque, principalmente para pessoas com limitação motora |
-| **Status** | Identificado em 27/09/2026 |
-| **Evidência** | [evidencias/acessibilidade/a11y-axe-violacoes.png](evidencias/acessibilidade/a11y-axe-violacoes.png) |
-
-### Bug #13 - Campos Sem Identificação de Propósito (autocomplete)
-
-| Campo | Detalhes |
-|-------|----------|
-| **Descrição** | Os campos que coletam dados do próprio usuário não identificam seu propósito com o atributo `autocomplete`; o campo de país tem `autocomplete="off"`, que desliga o preenchimento automático |
-| **Ambiente** | `/pt/registrar` |
-| **Localização** | Nome, Sobrenome, Email, País, Senha e Confirme sua Senha |
-| **Comportamento Atual** | Atributo ausente em 5 campos e `off` no país; o email é `type="text"` |
-| **Comportamento Esperado** | `given-name`, `family-name`, `email`, `country-name` e `new-password` (nos dois campos de senha), valores listados na seção 7 "Finalidades de Entrada" da WCAG 2.2; email com `type="email"` |
-| **Critério WCAG 2.2** | **1.3.5 Identificar o Propósito de Entrada (Nível AA)** |
-| **Severidade** | Baixa |
-| **Impacto** | O navegador e os gerenciadores de senha não preenchem os dados automaticamente, o que dificulta o cadastro principalmente para pessoas com limitações motoras ou cognitivas; o gerenciador de senhas também não sugere senha forte para o cadastro |
-| **Status** | Identificado em 27/09/2026 |
-| **Evidência** | [evidencias/acessibilidade/a11y-autocomplete.png](evidencias/acessibilidade/a11y-autocomplete.png) |
-
-![Bug #13 - atributo autocomplete dos campos do cadastro](evidencias/acessibilidade/a11y-autocomplete.png)
-
-#### Embasamento legal e normativo - Acessibilidade
-
-| Fonte | Texto | Relação com os achados |
-|-------|-------|------------------------|
-| **Lei nº 13.146/2015 (Lei Brasileira de Inclusão), Art. 63** | "É obrigatória a acessibilidade nos sítios da internet mantidos por empresas com sede ou representação comercial no País ou por órgãos de governo, para uso da pessoa com deficiência, garantindo-lhe acesso às informações disponíveis, conforme as melhores práticas e diretrizes de acessibilidade adotadas internacionalmente." | A diretriz de acessibilidade adotada internacionalmente é a WCAG, do W3C, usada como referência nos Bugs #09 a #13 |
-| **WCAG 2.2 - 4.1.2 Nome, Função, Valor (Nível A)** | "Para todos os componentes de interface de usuário (incluindo, mas não se limitando a: elementos de formulário, links e componentes gerados por scripts), o nome e a função podem ser determinados programaticamente; os estados, as propriedades e os valores, que possam ser definidos pelo usuário, podem ser definidos programaticamente [...]" | Bugs #09 e #10 |
-| **WCAG 2.2 - 2.4.6 Cabeçalhos e Rótulos (Nível AA)** | "Os cabeçalhos e os rótulos descrevem o tópico ou a finalidade." | Bug #10 |
-| **WCAG 2.2 - 1.4.3 Contraste (Mínimo) (Nível AA)** | "A apresentação visual de texto e imagens de texto tem uma relação de contraste de, no mínimo, 4.5:1 [...]" | Bug #11 |
-| **WCAG 2.2 - 2.5.8 Tamanho do Alvo (Mínimo) (Nível AA)** | "O tamanho do alvo para entradas de ponteiro é pelo menos 24 por 24 pixels CSS, exceto quando: [...]" | Bug #12 |
-| **WCAG 2.2 - 1.3.5 Identificar o Propósito de Entrada (Nível AA)** | "A finalidade de cada campo de entrada que coleta informações sobre o usuário pode ser determinada programaticamente quando: [...] O campo de entrada atende à finalidade identificada na seção Finalidades de Entrada para Componentes de Interface de Usuário [...]" | Bug #13 (a seção 7 lista `given-name`, `family-name`, `email`, `country-name` e `new-password`) |
-| **WCAG 2.2 - 1.4.10 Realinhar (Nível AA)** | "O conteúdo pode ser apresentado sem perda de informação ou funcionalidade e sem exigir rolagem em duas dimensões para: Conteúdo de rolagem vertical com largura equivalente a 320 pixels CSS [...]" | Atendido (CT-13) |
-| **WCAG 2.2 - 2.1.1 Teclado (Nível A)** | "Toda a funcionalidade do conteúdo é operável através de uma interface de teclado [...]" | Atendido (CT-11) |
-
-Fontes oficiais: [https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2015/lei/l13146.htm](https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2015/lei/l13146.htm) e [https://www.w3.org/Translations/WCAG22-pt-BR/](https://www.w3.org/Translations/WCAG22-pt-BR/) (tradução autorizada da WCAG 2.2 para português do Brasil, publicada pelo W3C em 27/03/2025; a versão normativa em inglês está em [https://www.w3.org/TR/WCAG22/](https://www.w3.org/TR/WCAG22/)).
+**Observação (não conclusiva):** na conta criada pelo teste exploratório, o campo `registeredIn` da API do Bug #05 aparece como `["Blocks", "Blocks"]`, enquanto em uma conta criada com um clique aparece `["Blocks"]`. Nas 2 contas do teste de regressão consultadas, o campo continuava vazio (`null`) até cerca de 30 minutos depois do cadastro. Não foi possível relacionar o valor duplicado ao duplo clique; vale a equipe de desenvolvimento verificar se o segundo envio grava algum registro antes de ser recusado.
 
 **Prints das fontes (capturados em 27/09/2026, com o link de origem no topo de cada imagem):**
 
-![Lei Brasileira de Inclusão - Art. 63 (planalto.gov.br)](evidencias/acessibilidade/lbi-art63-acessibilidade-sites.png)
+![Nielsen Norman Group - heurística #5, Prevenção de Erros](evidencias/ux/nng-heuristica-5-prevencao-de-erros.png)
 
-![WCAG 2.2 - 4.1.2 Nome, Função, Valor (w3.org, tradução autorizada)](evidencias/acessibilidade/wcag-4-1-2-nome-funcao-valor.jpg)
+![Nielsen Norman Group - heurística #1, Visibilidade do Status do Sistema](evidencias/ux/nng-heuristica-1-visibilidade-do-status.png)
 
-![WCAG 2.2 - 2.4.6 Cabeçalhos e Rótulos (w3.org, tradução autorizada)](evidencias/acessibilidade/wcag-2-4-6-cabecalhos-e-rotulos.jpg)
-
-![WCAG 2.2 - 1.4.3 Contraste (Mínimo) (w3.org, tradução autorizada)](evidencias/acessibilidade/wcag-1-4-3-contraste-minimo.jpg)
-
-![WCAG 2.2 - 2.5.8 Tamanho do Alvo (Mínimo) (w3.org, tradução autorizada)](evidencias/acessibilidade/wcag-2-5-8-tamanho-do-alvo.jpg)
-
-![WCAG 2.2 - 2.1.1 Teclado (w3.org, tradução autorizada)](evidencias/acessibilidade/wcag-2-1-1-teclado.jpg)
-
-![WCAG 2.2 - 1.3.5 Identificar o Propósito de Entrada (w3.org, tradução autorizada)](evidencias/acessibilidade/wcag-1-3-5-proposito-de-entrada.jpg)
-
-![WCAG 2.2 - seção 7, Finalidades de Entrada: name, given-name e family-name](evidencias/acessibilidade/wcag-secao-7-finalidades-1-nome.jpg)
-
-![WCAG 2.2 - seção 7, Finalidades de Entrada: new-password e country-name](evidencias/acessibilidade/wcag-secao-7-finalidades-2-senha-e-pais.jpg)
-
-![WCAG 2.2 - seção 7, Finalidades de Entrada: email](evidencias/acessibilidade/wcag-secao-7-finalidades-3-email.jpg)
-
-![WCAG 2.2 - 1.4.10 Realinhar (w3.org, tradução autorizada)](evidencias/acessibilidade/wcag-1-4-10-realinhar.jpg)
-
-> **Observação:** a caracterização de conformidade legal cabe à assessoria jurídica da Blocks; este relatório aponta os critérios técnicos da WCAG não atendidos, com base na referência indicada pela própria lei.
-
-> **Observação (sem evidência capturada, não classificada como bug):** na página em espanhol, as opções "Other" e "ChatGPT / Gemini / Other AI" do campo "¿Cómo te enteraste de Blocks?" aparecem em inglês.
+Fontes: [https://www.nngroup.com/articles/ten-usability-heuristics/](https://www.nngroup.com/articles/ten-usability-heuristics/) e [https://www.nngroup.com/articles/errors-forms-design-guidelines/](https://www.nngroup.com/articles/errors-forms-design-guidelines/)
 
 ---
 
@@ -749,8 +690,8 @@ Fontes oficiais: [https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2015/lei/l
 - Inconsistências de internacionalização nas mensagens de validação, títulos, botões e link da política, nas páginas em português e espanhol (confirmadas pelo teste automatizado de idiomas)
 - Aviso de erro exibido no primeiro login de contas novas, mesmo com o login funcionando (Bug #07)
 - Cadastro com senha acima de 256 caracteres redireciona como sucesso sem criar a conta (Bug #08)
-- Validações que bloqueiam o botão sem explicar o motivo (aceite da política, nome só com espaços)
-- **Acessibilidade (Bugs #09 a #13):** controles sem nome, papel e estado para tecnologias assistivas (incluindo o aceite obrigatório da política), campos de senha anunciados como "••••••••", contraste insuficiente, área de toque pequena e campos sem `autocomplete`, com base na WCAG 2.2 e no Art. 63 da Lei Brasileira de Inclusão
+- Validações que bloqueiam o botão sem explicar o motivo (aceite da política, nome só com espaços, campos em branco) e erros exibidos antes de o usuário terminar de digitar (CT-12)
+- Duplo clique no botão de cadastro envia o cadastro duas vezes, com erro 500 no segundo envio e avisos "Carregando..." duplicados (Bug #09)
 - Textos de login na tela de cadastro nos três idiomas ("Entrar", "Iniciar", "Sign in" e o título "Iniciar Sesión")
 - Impacto na percepção de qualidade do produto
 - Possível confusão para usuários não familiarizados com inglês
@@ -767,33 +708,28 @@ Os testes automatizados foram implementados de forma a validar o comportamento a
 
 - **Restringir a resposta da API de verificação de email** a um indicador de disponibilidade (ex: `{ "available": false }`), sem dados do titular
 - **Aplicar limite de requisições** (rate limiting) na rota para dificultar a enumeração de contas
+- **Confirmar o conteúdo do campo `partnerCode`**, que em uma conta apresentou formato de CPF, e deixar de devolvê-lo na rota pública
 - **Envolver o encarregado de dados (DPO)** para avaliar o impacto e as obrigações previstas na LGPD
-
-### Acessibilidade (Bugs #09 a #13):
-
-- **Usar controles nativos** (`<input type="checkbox">`) ou `role="checkbox"` com `aria-checked` nas áreas de atuação e no aceite da política
-- **Associar os rótulos visíveis aos campos** (`<label for>`) e dar `aria-label` aos botões de ícone (mostrar senha, seta do país)
-- **Ajustar o contraste** dos textos do formulário e a **área de toque** da seta do país
-- **Adicionar `autocomplete`** aos campos (`given-name`, `family-name`, `email`, `country-name`, `new-password`) e usar `type="email"` no email
-- **Incluir a varredura automatizada de acessibilidade** (axe-core) no pipeline de CI, como feito neste projeto
 
 ### Curto Prazo:
 
 1. **Padronizar mensagens de validação** conforme o idioma selecionado na página
 2. **Revisar todas as mensagens do formulário** para garantir consistência de idioma
 3. **Implementar testes de regressão** para validações de idioma (ponto de partida já disponível neste projeto: `npm run test:idiomas`)
+4. **Bloquear o envio repetido do cadastro** (Bug #09): desabilitar o botão durante o envio e, no servidor, tratar a conta já existente com uma resposta de negócio (ex: `409`) em vez de erro 500 (a própria documentação do `AdminCreateUser` do Cognito, citada no CT-09, classifica a `UsernameExistsException` como HTTP 400, um erro do cliente, e não do servidor)
+5. **Ajustar o momento das mensagens do formulário** (CT-12): validar ao sair do campo, indicar o campo obrigatório que falta e listar todas as regras de senha de uma vez
 
 ### Médio Prazo:
 
-4. **Incluir critérios de aceite relacionados a idioma** nos requisitos de funcionalidade
-5. **Criar checklist de internacionalização** para novas features
-6. **Documentar padrões de mensagens** por idioma suportado
+6. **Incluir critérios de aceite relacionados a idioma** nos requisitos de funcionalidade
+7. **Criar checklist de internacionalização** para novas features
+8. **Documentar padrões de mensagens** por idioma suportado
 
 ### Longo Prazo:
 
-7. **Implementar testes de internacionalização automatizados** no pipeline CI/CD
-8. **Criar biblioteca centralizada de mensagens** por idioma
-9. **Realizar auditoria completa de internacionalização** em toda a aplicação
+9. **Implementar testes de internacionalização automatizados** no pipeline CI/CD
+10. **Criar biblioteca centralizada de mensagens** por idioma
+11. **Realizar auditoria completa de internacionalização** em toda a aplicação
 
 ---
 
@@ -801,7 +737,7 @@ Os testes automatizados foram implementados de forma a validar o comportamento a
 
 O fluxo principal de cadastro encontra-se funcional e estável, atendendo aos requisitos funcionais esperados. Todos os cenários de teste foram executados com sucesso, demonstrando a robustez do sistema.
 
-Os bugs #01 a #04 e #06 (severidade baixa) e os bugs #07, #08 e #10 a #13 (severidade média e baixa: aviso de erro no primeiro login, cadastro com senha acima de 256 caracteres que falha em silêncio e problemas de acessibilidade) não impedem o uso da funcionalidade no fluxo principal, mas impactam a experiência do usuário. O Bug #09 é de severidade alta: impede que uma pessoa que usa leitor de tela confirme o aceite obrigatório da política, contrariando o critério 4.1.2 da WCAG 2.2, referência do Art. 63 da Lei Brasileira de Inclusão. O Bug #05 também é de severidade alta: não afeta o funcionamento do cadastro, mas expõe dados pessoais dos usuários sem autenticação, em desacordo com os princípios de necessidade, segurança e prevenção e com o Art. 46 da LGPD, e deve ser priorizado.
+Os bugs #01 a #04 e #06 (severidade baixa) e os bugs #07 a #09 (severidade média: aviso de erro no primeiro login, cadastro com senha acima de 256 caracteres que falha em silêncio e envio duplicado do cadastro no duplo clique) não impedem o uso da funcionalidade no fluxo principal, mas impactam a experiência do usuário. O Bug #05 é de severidade alta: não afeta o funcionamento do cadastro, mas expõe dados pessoais dos usuários sem autenticação, em desacordo com os princípios de necessidade, segurança e prevenção e com o Art. 46 da LGPD, e deve ser priorizado.
 
 Os testes automatizados implementados cumprem o objetivo proposto no desafio e evidenciam boas práticas de automação e análise de qualidade, incluindo:
 
