@@ -1,4 +1,4 @@
-//Testes de regressão de bugs conhecidos (Bugs #07 e #08 do relatório).
+//Testes de regressão de bugs conhecidos (Bugs #07, #08 e #09 do relatório).
 //
 //Estes testes validam o comportamento ESPERADO e hoje FALHAM de propósito, porque os bugs
 //existem. Por isso ficam fora da suíte principal (npm test) e rodam com: npm run test:bugs
@@ -76,6 +76,46 @@ describe('Bugs conhecidos', () => {
             } else {
                 cy.request(`https://api.blocksrvt.com/v1/user/email/${email}`).its('status').should('eq', 200)
             }
+        })
+    })
+
+    it('Bug #09 - duplo clique no botão de cadastro envia o cadastro uma única vez', () => {
+        //Arrange
+        const email = `bug09${Date.now()}@gmail.com`
+        cy.intercept('POST', '**/v1/user').as('criarUsuario')
+        cy.abrirCadastro()
+        cy.preencherCadastro(userData.validUser, email)
+        cy.aceitarPolitica()
+
+        //Act: duplo clique, como um usuário que clica duas vezes por impaciência ou costume
+        cy.get('button[type="submit"]').dblclick()
+
+        //Assert: espera o primeiro envio e mais 3 s para um eventual segundo envio chegar ao servidor.
+        //Esperar aqui é intencional: o teste verifica a AUSÊNCIA de uma segunda requisição.
+        cy.wait('@criarUsuario', { timeout: 20000 })
+        cy.wait(3000, { log: false })
+
+        cy.contains('Carregando', { timeout: 10000 }).should('be.visible')
+        cy.get('@criarUsuario.all').then((envios) => {
+            const linhas = envios.map((e, i) => {
+                const corpo = (e.response && e.response.body) || {}
+                return `envio ${i + 1}: ${e.request.method} ${e.request.url} -> HTTP ${e.response && e.response.statusCode} ${corpo.error ? JSON.stringify(corpo) : '(conta criada, corpo da resposta omitido)'}`
+            })
+            //registro gravado pela Blocks para a conta (rota do Bug #05, consultada só para a conta criada pelo teste)
+            cy.request(`https://api.blocksrvt.com/v1/user/email/${email}`).its('body').then(({ registeredIn }) => {
+                const resumo = `${linhas.join('\n')}\nregisteredIn da conta: ${JSON.stringify(registeredIn)}`
+                //painel desenhado pelo teste por cima da página, como no Bug #08: o print mostra juntos
+                //os avisos de carregamento (um por envio) e o que o servidor respondeu a cada envio
+                cy.document().then((doc) => {
+                    const painel = doc.createElement('div')
+                    painel.style.cssText = 'position:fixed;left:12px;right:12px;top:12px;z-index:99999;background:#1f2937;color:#fff;font:12px/1.45 Consolas,monospace;padding:10px 12px;border-radius:6px;white-space:pre-wrap;word-break:break-all'
+                    painel.textContent = `[painel adicionado pelo teste]\n${resumo}`
+                    doc.body.appendChild(painel)
+                })
+                cy.screenshot('bug09-duplo-clique-avisos', { capture: 'runner' })
+                //dentro de cy.then para rodar depois do print (comandos entram na fila; o expect solto rodaria antes)
+                cy.then(() => expect(envios, `requisições POST /v1/user\n${resumo}`).to.have.length(1))
+            })
         })
     })
 })

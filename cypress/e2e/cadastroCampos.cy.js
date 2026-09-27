@@ -27,7 +27,7 @@ describe('Variações dos campos do cadastro', () => {
         const NOMES_ACEITOS = [
             { caso: 'com 1 caractere', nome: 'A', sobrenome: 'B' },
             { caso: 'com apóstrofo, hífen e acento', nome: 'Ana-Luíza', sobrenome: "D'Ávila Conceição" },
-            { caso: 'com 300 caracteres (não há limite no formulário)', nome: 'N'.repeat(300), sobrenome: 'S'.repeat(300) },
+            { caso: 'com 300 caracteres (o campo não define tamanho máximo)', nome: 'N'.repeat(300), sobrenome: 'S'.repeat(300) },
         ]
 
         NOMES_ACEITOS.forEach(({ caso, nome, sobrenome }) => {

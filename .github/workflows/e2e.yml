@@ -70,7 +70,7 @@ jobs:
           retention-days: 14
 
   bugs-conhecidos:
-    #Regressão dos bugs #07 e #08: validam o comportamento esperado e hoje falham de propósito.
+    #Regressão dos bugs #07 a #09: validam o comportamento esperado e hoje falham de propósito.
     #Assim como os testes de idioma, não marcam o workflow como quebrado.
     name: Bugs conhecidos (falhas esperadas = bugs registrados)
     runs-on: ubuntu-latest
