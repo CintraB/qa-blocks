@@ -70,6 +70,33 @@ Cypress.Commands.add('cadastrarUsuario', (usuario, email) => {
     cy.location('pathname').should('eq', '/pt/login')
 })
 
+//Emula um dispositivo como o modo de dispositivo do DevTools do Chrome, pelo protocolo do Chrome (CDP):
+//tamanho da tela (cy.viewport, aplicado ao quadro da página testada), toque (pointer: coarse,
+//ontouchstart) e user agent do aparelho. A densidade de tela (devicePixelRatio) não chega à página,
+//que roda dentro do quadro do Cypress; ela não altera o layout.
+//dispositivo: { largura, altura, toque, userAgent, plataforma }
+const cdp = (command, params) => Cypress.automation('remote:debugger:protocol', { command, params })
+//user agent original, lido antes de qualquer emulação, para ser restaurado depois
+const USER_AGENT_ORIGINAL = window.navigator.userAgent
+
+Cypress.Commands.add('emularDispositivo', (dispositivo) => {
+    cy.viewport(dispositivo.largura, dispositivo.altura)
+    if (dispositivo.toque) {
+        cy.wrap(cdp('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 5 }), { log: false })
+        cy.wrap(cdp('Emulation.setEmitTouchEventsForMouse', { enabled: true, configuration: 'mobile' }), { log: false })
+    }
+    if (dispositivo.userAgent) {
+        cy.wrap(cdp('Network.setUserAgentOverride', { userAgent: dispositivo.userAgent, platform: dispositivo.plataforma || '' }), { log: false })
+    }
+})
+
+//Desliga a emulação: as configurações do protocolo valem para a aba e passariam para o próximo teste
+Cypress.Commands.add('desfazerEmulacao', () => {
+    cy.wrap(cdp('Emulation.setTouchEmulationEnabled', { enabled: false }), { log: false })
+    cy.wrap(cdp('Emulation.setEmitTouchEventsForMouse', { enabled: false }), { log: false })
+    cy.wrap(cdp('Network.setUserAgentOverride', { userAgent: USER_AGENT_ORIGINAL }), { log: false })
+})
+
 //Faz login pela tela /pt/login (a página já deve estar aberta)
 Cypress.Commands.add('fazerLogin', (email, senha) => {
     cy.get('#email').should('be.visible').type(email)
