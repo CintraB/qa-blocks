@@ -1,5 +1,7 @@
 # Automação de Testes - QA
 
+[![E2E - Cadastro Blocks](https://github.com/CintraB/qa-blocks/actions/workflows/e2e.yml/badge.svg)](https://github.com/CintraB/qa-blocks/actions/workflows/e2e.yml)
+
 Projeto de automação de testes E2E (ponta a ponta) para o fluxo de cadastro de usuários da plataforma Blocks.
 
 ## Sobre o Projeto
@@ -7,6 +9,22 @@ Projeto de automação de testes E2E (ponta a ponta) para o fluxo de cadastro de
 Este projeto demonstra minha experiência prática em automação de testes E2E, estruturação de frameworks QA e validação de qualidade em aplicações web.
 
 **Página testada:** https://www.blocksrvt.com/pt/registrar
+
+## Evolução do Projeto
+
+| Versão | Data | O que contém |
+|--------|------|--------------|
+| **Entrega do desafio** | 22/01/2026 | Tag [`entrega-2026-01-22`](https://github.com/CintraB/qa-blocks/tree/entrega-2026-01-22): versão entregue no prazo, com os 4 cenários obrigatórios + email já em uso, e o relatório com os bugs #01 e #02 |
+| **Manutenção e melhorias** | 26/09/2026 | Versão atual da `main`, descrita abaixo |
+
+O que mudou na versão de 26/09/2026:
+
+- **Manutenção da suíte:** o site mudou o botão do banner de cookies ("Permitir todos" → "Aceitar todos") e todos os testes passaram a falhar; a suíte foi corrigida e o clique centralizado em um comando customizado
+- **Código de teste:** comandos customizados, `baseUrl`, fim das esperas fixas (`cy.wait(ms)` substituído pela espera da requisição da API) e cenário de email já em uso independente de dados pré-existentes
+- **Testes de idioma:** nova suíte que valida os textos da página em português, espanhol e inglês (`npm run test:idiomas`)
+- **Novos bugs no relatório:** #03 e #04 (textos em inglês e textos de login na tela de cadastro), #06 (link da política em português na página em espanhol) e **#05, de severidade alta: a API de verificação de email expõe dados pessoais sem autenticação**, com embasamento na LGPD e prints das fontes oficiais
+- **Integração contínua:** suíte executada no GitHub Actions a cada push
+- **Organização:** dependências e configurações corrigidas, artefatos gerados fora do versionamento e evidências do relatório em pasta própria
 
 ## Tecnologias Utilizadas
 
@@ -147,6 +165,16 @@ Executa a suíte de internacionalização (`cypress/idiomas/`). Ela valida o com
 ```bash
 npm run test:idiomas
 ```
+## Integração Contínua (GitHub Actions)
+
+O workflow [`.github/workflows/e2e.yml`](.github/workflows/e2e.yml) roda a cada push na `main`, em pull requests e manualmente (aba **Actions** → **Run workflow**):
+
+- **Suíte principal** (`npm test`): define o status do selo no topo deste README; no CI, cada teste tem 1 nova tentativa para absorver instabilidade de rede
+- **Testes de idioma** (`npm run test:idiomas`): executados em um job separado que não afeta o status, pois hoje falham de propósito (bugs registrados)
+- Relatório HTML e screenshots de cada execução ficam disponíveis para download como artefatos por 14 dias
+
+Não há execução agendada: cada execução cria contas no ambiente da Blocks, então os testes rodam apenas quando há mudança no projeto ou sob demanda.
+
 ## Relatório Detalhado
 
 O relatório completo de testes pode ser encontrado em:
