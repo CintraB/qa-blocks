@@ -2,7 +2,6 @@
     "validUser": {
         "nome": "UsuarioTeste",
         "sobrenome": "SobrenomeTeste",
-        "email": "emailtest38321@gmail.com",
         "pais": "Brazil",
         "idiomaFamilia": "Famílias em Português",
         "areaAtuacao": "Estudante",
@@ -18,7 +17,6 @@
     "differentPasswords": {
         "nome": "Usuario",
         "sobrenome": "SenhasDiferentes",
-        "email": "emaildiferente@gmail.com",
         "pais": "Brazil",
         "idiomaFamilia": "Famílias em Português",
         "areaAtuacao": "Estudante",
@@ -29,12 +27,11 @@
     "userDenyPolicy": {
         "nome": "Teste",
         "sobrenome": "Politicas",
-        "email": "emailteste12345@gmail.com",
         "pais": "Brazil",
         "idiomaFamilia": "Famílias em Português",
         "areaAtuacao": "Estudante",
         "comoSoube": "Facebook",
         "senha": "826CcyTER*3",
-        "confirmarSenha": "826CcyTER*3"        
+        "confirmarSenha": "826CcyTER*3"
     }
 }
