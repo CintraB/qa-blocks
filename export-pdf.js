@@ -66,7 +66,7 @@ function ligarEvidencias(html) {
     const refs = referencias[id] || [];
     const porSecao = refs.filter((r, i) => refs.findIndex((x) => x.secao === r.secao) === i);
     if (!porSecao.length) return '';
-    return '<p class="voltar">' + porSecao.map((r) => `<a href="#${r.ref}">↩ Voltar para: ${r.secao}</a>`).join('<br>') + '</p>';
+    return '<p class="voltar">' + porSecao.map((r) => `<a href="#${r.ref}">Voltar para: ${r.secao}</a>`).join('<br>') + '</p>';
   });
 
   const totalRefs = Object.values(referencias).reduce((s, r) => s + r.length, 0);

@@ -60,8 +60,10 @@ A estratégia adotada foi de **testes E2E (End-to-End) automatizados**, simuland
 | **CT-06** | Cadastro com email duplicado escrito em letras maiúsculas | Negativo | Passou |
 | **CT-07** | Regras de senha: valor-limite e partição de equivalência (9 casos) | Positivo/Negativo | Passou (9/9) |
 | **CT-08** | Campos obrigatórios, um de cada vez (10 casos) | Negativo | Passou (10/10) |
+| **CT-09** | Senha no servidor: limite de 256 caracteres, login e senha truncada em 72 | Positivo/Negativo | Passou |
+| **CT-10** | Variações de nome, país, área de atuação e email (10 casos) | Positivo/Negativo | Passou (10/10) |
 
-> CT-01 a CT-05 são os cenários da entrega original (22/01/2026). O login no CT-01 e os cenários CT-06 a CT-08 foram adicionados em 27/09/2026.
+> CT-01 a CT-05 são os cenários da entrega original (22/01/2026). O login no CT-01 e os cenários CT-06 a CT-10 foram adicionados em 27/09/2026.
 
 ### Cenário de Teste CT-01 - Cadastro de usuário com sucesso
 
@@ -78,7 +80,7 @@ A estratégia adotada foi de **testes E2E (End-to-End) automatizados**, simuland
 **Resultado:** Passou
 
 Evidências:
-- [📷 evidencias/cypress/cadastroCompleto.cy.js/cadastroCompleto.png](evidencias/cypress/cadastroCompleto.cy.js/cadastroCompleto.png), [📷 evidencias/cypress/cadastroCompleto.cy.js/aposCadastro.png](evidencias/cypress/cadastroCompleto.cy.js/aposCadastro.png) e [📷 evidencias/cypress/cadastroCompleto.cy.js/aposLogin.png](evidencias/cypress/cadastroCompleto.cy.js/aposLogin.png)
+- [evidencias/cypress/cadastroCompleto.cy.js/cadastroCompleto.png](evidencias/cypress/cadastroCompleto.cy.js/cadastroCompleto.png), [evidencias/cypress/cadastroCompleto.cy.js/aposCadastro.png](evidencias/cypress/cadastroCompleto.cy.js/aposCadastro.png) e [evidencias/cypress/cadastroCompleto.cy.js/aposLogin.png](evidencias/cypress/cadastroCompleto.cy.js/aposLogin.png)
 
 > O aviso "Login efetuado com sucesso!" não é validado pelo teste: no primeiro login ele vem acompanhado de "Algo deu errado. Por favor, tente novamente." e nem sempre aparece a tempo (Bug #07).
 
@@ -95,7 +97,7 @@ Evidências:
 **Resultado:** Passou
 
 Evidências:
-- [📷 evidencias/cypress/cadastroEmailInv.cy.js/cadastroInvalido.png](evidencias/cypress/cadastroEmailInv.cy.js/cadastroInvalido.png) e [📷 evidencias/cypress/cadastroEmailInv.cy.js/aposcadastroInvalido.png](evidencias/cypress/cadastroEmailInv.cy.js/aposcadastroInvalido.png)
+- [evidencias/cypress/cadastroEmailInv.cy.js/cadastroInvalido.png](evidencias/cypress/cadastroEmailInv.cy.js/cadastroInvalido.png) e [evidencias/cypress/cadastroEmailInv.cy.js/aposcadastroInvalido.png](evidencias/cypress/cadastroEmailInv.cy.js/aposcadastroInvalido.png)
 
 ### Cenário de Teste CT-03 - Cadastro com email duplicado
 
@@ -110,7 +112,7 @@ Evidências:
 **Resultado:** Passou
 
 Evidências:
-- [📷 evidencias/cypress/cadastroEmailInv.cy.js/emailjaUsado.png](evidencias/cypress/cadastroEmailInv.cy.js/emailjaUsado.png) e [📷 evidencias/cypress/cadastroEmailInv.cy.js/aposEmailjaUsado.png](evidencias/cypress/cadastroEmailInv.cy.js/aposEmailjaUsado.png)
+- [evidencias/cypress/cadastroEmailInv.cy.js/emailjaUsado.png](evidencias/cypress/cadastroEmailInv.cy.js/emailjaUsado.png) e [evidencias/cypress/cadastroEmailInv.cy.js/aposEmailjaUsado.png](evidencias/cypress/cadastroEmailInv.cy.js/aposEmailjaUsado.png)
 
 ### Cenário de Teste CT-04 - Cadastro sem aceitar política de privacidade
 
@@ -124,7 +126,7 @@ Evidências:
 **Resultado:** Passou
 
 Evidências:
-- [📷 evidencias/cypress/cadastroSemTermo.cy.js/cadastroSemTermo.png](evidencias/cypress/cadastroSemTermo.cy.js/cadastroSemTermo.png) e [📷 evidencias/cypress/cadastroSemTermo.cy.js/aposCadastroSemTermo.png](evidencias/cypress/cadastroSemTermo.cy.js/aposCadastroSemTermo.png)
+- [evidencias/cypress/cadastroSemTermo.cy.js/cadastroSemTermo.png](evidencias/cypress/cadastroSemTermo.cy.js/cadastroSemTermo.png) e [evidencias/cypress/cadastroSemTermo.cy.js/aposCadastroSemTermo.png](evidencias/cypress/cadastroSemTermo.cy.js/aposCadastroSemTermo.png)
 
 ## Observação de Experiência do Usuário (Sugestão de Melhoria)
 
@@ -153,7 +155,7 @@ A ausência de feedback visual pode gerar dúvidas ao usuário, principalmente e
 **Resultado:** Passou
 
 Evidências:
-- [📷 evidencias/cypress/cadastroSenhaDif.cy.js/cadastroSenhaDif.png](evidencias/cypress/cadastroSenhaDif.cy.js/cadastroSenhaDif.png) e [📷 evidencias/cypress/cadastroSenhaDif.cy.js/aposCadastroSenhaDif.png](evidencias/cypress/cadastroSenhaDif.cy.js/aposCadastroSenhaDif.png)
+- [evidencias/cypress/cadastroSenhaDif.cy.js/cadastroSenhaDif.png](evidencias/cypress/cadastroSenhaDif.cy.js/cadastroSenhaDif.png) e [evidencias/cypress/cadastroSenhaDif.cy.js/aposCadastroSenhaDif.png](evidencias/cypress/cadastroSenhaDif.cy.js/aposCadastroSenhaDif.png)
 
 ### Cenário de Teste CT-06 - Cadastro com email duplicado escrito em letras maiúsculas
 
@@ -168,7 +170,7 @@ Evidências:
 **Resultado:** Passou. A verificação de email é insensível a maiúsculas/minúsculas (comportamento correto).
 
 Evidência:
-- [📷 evidencias/cypress/cadastroEmailInv.cy.js/emailjaUsadoMaiusculas.png](evidencias/cypress/cadastroEmailInv.cy.js/emailjaUsadoMaiusculas.png)
+- [evidencias/cypress/cadastroEmailInv.cy.js/emailjaUsadoMaiusculas.png](evidencias/cypress/cadastroEmailInv.cy.js/emailjaUsadoMaiusculas.png)
 
 ### Cenário de Teste CT-07 - Regras de senha (valor-limite e partição de equivalência)
 
@@ -195,11 +197,11 @@ Evidência:
 
 Evidências (um print por regra violada):
 
-- Sem caractere especial: [📷 evidencias/cypress/cadastroSenha.cy.js/senha-sem-especial.png](evidencias/cypress/cadastroSenha.cy.js/senha-sem-especial.png)
-- Sem maiúscula: [📷 evidencias/cypress/cadastroSenha.cy.js/senha-sem-maiuscula.png](evidencias/cypress/cadastroSenha.cy.js/senha-sem-maiuscula.png)
-- Sem minúscula: [📷 evidencias/cypress/cadastroSenha.cy.js/senha-sem-minuscula.png](evidencias/cypress/cadastroSenha.cy.js/senha-sem-minuscula.png)
-- Sem número: [📷 evidencias/cypress/cadastroSenha.cy.js/senha-sem-numero.png](evidencias/cypress/cadastroSenha.cy.js/senha-sem-numero.png)
-- 8 caracteres: [📷 evidencias/cypress/cadastroSenha.cy.js/senha-tamanho-8.png](evidencias/cypress/cadastroSenha.cy.js/senha-tamanho-8.png)
+- Sem caractere especial: [evidencias/cypress/cadastroSenha.cy.js/senha-sem-especial.png](evidencias/cypress/cadastroSenha.cy.js/senha-sem-especial.png)
+- Sem maiúscula: [evidencias/cypress/cadastroSenha.cy.js/senha-sem-maiuscula.png](evidencias/cypress/cadastroSenha.cy.js/senha-sem-maiuscula.png)
+- Sem minúscula: [evidencias/cypress/cadastroSenha.cy.js/senha-sem-minuscula.png](evidencias/cypress/cadastroSenha.cy.js/senha-sem-minuscula.png)
+- Sem número: [evidencias/cypress/cadastroSenha.cy.js/senha-sem-numero.png](evidencias/cypress/cadastroSenha.cy.js/senha-sem-numero.png)
+- 8 caracteres: [evidencias/cypress/cadastroSenha.cy.js/senha-tamanho-8.png](evidencias/cypress/cadastroSenha.cy.js/senha-tamanho-8.png)
 
 ### Cenário de Teste CT-08 - Campos obrigatórios, um de cada vez
 
@@ -215,16 +217,56 @@ Evidências (um print por regra violada):
 
 Evidências (um print por campo faltando):
 
-- Sem Área de atuação: [📷 evidencias/cypress/cadastroObrigatorios.cy.js/obrigatorio-sem-areaAtuacao.png](evidencias/cypress/cadastroObrigatorios.cy.js/obrigatorio-sem-areaAtuacao.png)
-- Sem Como ficou sabendo: [📷 evidencias/cypress/cadastroObrigatorios.cy.js/obrigatorio-sem-comoSoube.png](evidencias/cypress/cadastroObrigatorios.cy.js/obrigatorio-sem-comoSoube.png)
-- Sem Confirmação de senha: [📷 evidencias/cypress/cadastroObrigatorios.cy.js/obrigatorio-sem-confirmarSenha.png](evidencias/cypress/cadastroObrigatorios.cy.js/obrigatorio-sem-confirmarSenha.png)
-- Sem Email: [📷 evidencias/cypress/cadastroObrigatorios.cy.js/obrigatorio-sem-email.png](evidencias/cypress/cadastroObrigatorios.cy.js/obrigatorio-sem-email.png)
-- Sem Idioma da Família: [📷 evidencias/cypress/cadastroObrigatorios.cy.js/obrigatorio-sem-idiomaFamilia.png](evidencias/cypress/cadastroObrigatorios.cy.js/obrigatorio-sem-idiomaFamilia.png)
-- Sem Nome: [📷 evidencias/cypress/cadastroObrigatorios.cy.js/obrigatorio-sem-nome.png](evidencias/cypress/cadastroObrigatorios.cy.js/obrigatorio-sem-nome.png)
-- Sem País: [📷 evidencias/cypress/cadastroObrigatorios.cy.js/obrigatorio-sem-pais.png](evidencias/cypress/cadastroObrigatorios.cy.js/obrigatorio-sem-pais.png)
-- Sem Aceite da política: [📷 evidencias/cypress/cadastroObrigatorios.cy.js/obrigatorio-sem-politica.png](evidencias/cypress/cadastroObrigatorios.cy.js/obrigatorio-sem-politica.png)
-- Sem Senha: [📷 evidencias/cypress/cadastroObrigatorios.cy.js/obrigatorio-sem-senha.png](evidencias/cypress/cadastroObrigatorios.cy.js/obrigatorio-sem-senha.png)
-- Sem Sobrenome: [📷 evidencias/cypress/cadastroObrigatorios.cy.js/obrigatorio-sem-sobrenome.png](evidencias/cypress/cadastroObrigatorios.cy.js/obrigatorio-sem-sobrenome.png)
+- Sem Área de atuação: [evidencias/cypress/cadastroObrigatorios.cy.js/obrigatorio-sem-areaAtuacao.png](evidencias/cypress/cadastroObrigatorios.cy.js/obrigatorio-sem-areaAtuacao.png)
+- Sem Como ficou sabendo: [evidencias/cypress/cadastroObrigatorios.cy.js/obrigatorio-sem-comoSoube.png](evidencias/cypress/cadastroObrigatorios.cy.js/obrigatorio-sem-comoSoube.png)
+- Sem Confirmação de senha: [evidencias/cypress/cadastroObrigatorios.cy.js/obrigatorio-sem-confirmarSenha.png](evidencias/cypress/cadastroObrigatorios.cy.js/obrigatorio-sem-confirmarSenha.png)
+- Sem Email: [evidencias/cypress/cadastroObrigatorios.cy.js/obrigatorio-sem-email.png](evidencias/cypress/cadastroObrigatorios.cy.js/obrigatorio-sem-email.png)
+- Sem Idioma da Família: [evidencias/cypress/cadastroObrigatorios.cy.js/obrigatorio-sem-idiomaFamilia.png](evidencias/cypress/cadastroObrigatorios.cy.js/obrigatorio-sem-idiomaFamilia.png)
+- Sem Nome: [evidencias/cypress/cadastroObrigatorios.cy.js/obrigatorio-sem-nome.png](evidencias/cypress/cadastroObrigatorios.cy.js/obrigatorio-sem-nome.png)
+- Sem País: [evidencias/cypress/cadastroObrigatorios.cy.js/obrigatorio-sem-pais.png](evidencias/cypress/cadastroObrigatorios.cy.js/obrigatorio-sem-pais.png)
+- Sem Aceite da política: [evidencias/cypress/cadastroObrigatorios.cy.js/obrigatorio-sem-politica.png](evidencias/cypress/cadastroObrigatorios.cy.js/obrigatorio-sem-politica.png)
+- Sem Senha: [evidencias/cypress/cadastroObrigatorios.cy.js/obrigatorio-sem-senha.png](evidencias/cypress/cadastroObrigatorios.cy.js/obrigatorio-sem-senha.png)
+- Sem Sobrenome: [evidencias/cypress/cadastroObrigatorios.cy.js/obrigatorio-sem-sobrenome.png](evidencias/cypress/cadastroObrigatorios.cy.js/obrigatorio-sem-sobrenome.png)
+
+### Cenário de Teste CT-09 - Senha no servidor (limite de 256 caracteres e senha truncada)
+
+- Contexto: o formulário não tem limite máximo de senha, mas o cadastro usa o **AWS Cognito**, cujo limite é de **256 caracteres** (confirmado pela própria resposta da API no Bug #08).
+- Técnica: **análise de valor-limite no servidor**, mais um teste de segurança de comparação de senha: sistemas que usam o algoritmo bcrypt ignoram o que passa de 72 bytes, e aí uma senha longa "funciona" digitando só o começo.
+
+- Critérios de Aceite Validados:
+    - Cadastro com senha de exatamente **256 caracteres** (limite do servidor)
+    - Login com a senha completa: redirecionamento para `/pt/home` e sessão ativa
+    - Login com os **72 primeiros caracteres** da mesma senha: **recusado**, sem sessão (cookie `is_logged` e token do Cognito ausentes)
+
+**Resultado:** Passou. A senha é comparada por inteiro (não há truncamento em 72 bytes).
+
+Evidência: [evidencias/cypress/cadastroSenha.cy.js/senha-256-truncada-72-recusada.png](evidencias/cypress/cadastroSenha.cy.js/senha-256-truncada-72-recusada.png)
+
+**Observação (UX, sem classificação como bug):** o login com senha errada exibe apenas "Algo deu errado. Por favor, tente novamente.", a mesma mensagem genérica do Bug #07, em vez de algo como "Email ou senha incorretos".
+
+### Cenário de Teste CT-10 - Variações de nome, país, área de atuação e email
+
+- Técnica: **partição de equivalência** com valores reais e de limite, validados na tela (nenhum cadastro é enviado). Nos casos recusados, o assert é em duas etapas: botão desabilitado e, depois de trocar pelo valor válido, botão habilitado.
+
+| Campo | Caso | Esperado | Resultado |
+|-------|------|----------|-----------|
+| Nome | 1 caractere | Aceitar | Passou |
+| Nome | Apóstrofo, hífen e acento (`Ana-Luíza D'Ávila Conceição`) | Aceitar | Passou |
+| Nome | 300 caracteres | Aceitar (não há limite) | Passou |
+| Nome | Só espaços | Recusar | Passou |
+| País | Digitado sem escolher da lista | Recusar (o texto é descartado) | Passou |
+| Área de atuação | Duas áreas marcadas | Aceitar | Passou |
+| Email | Com `+tag` (`nome+tag@gmail.com`) | Aceitar | Passou |
+| Email | Com subdomínio (`@mail.empresa.com.br`) | Aceitar | Passou |
+| Email | 254 caracteres (tamanho máximo, RFC 5321) | Aceitar | Passou |
+| Email | Espaços antes e depois | Recusar | Passou |
+
+**Observações (sem classificação como bug):**
+- **Nome só com espaços:** o botão fica desabilitado **sem nenhuma mensagem** explicando o motivo, o mesmo padrão da sugestão de UX do CT-04. Evidência: [evidencias/cypress/cadastroCampos.cy.js/nome-so-espacos.png](evidencias/cypress/cadastroCampos.cy.js/nome-so-espacos.png)
+- **Nome sem limite de tamanho:** 300 caracteres são aceitos no formulário e também pelo servidor (em sondagem de 27/09/2026, o cadastro com nome de 300 caracteres foi concluído). Vale definir um limite para evitar problemas de exibição e de armazenamento.
+- **Email com espaços antes e depois** (comum ao copiar e colar) é recusado como inválido em vez de ter os espaços removidos automaticamente. Evidência: [evidencias/cypress/cadastroCampos.cy.js/email-com-espacos.png](evidencias/cypress/cadastroCampos.cy.js/email-com-espacos.png)
+
+Evidência das duas áreas marcadas: [evidencias/cypress/cadastroCampos.cy.js/duas-areas-marcadas.png](evidencias/cypress/cadastroCampos.cy.js/duas-areas-marcadas.png)
 
 ---
 
@@ -266,16 +308,16 @@ As evidências (screenshots) deste relatório são da reexecução de 26/09/2026
 
 ### Ampliação da Suíte - 27/09/2026
 
-Novos cenários (CT-06 a CT-08) e login no CT-01, todos na suíte principal (`npm test`):
+Novos cenários (CT-06 a CT-10) e login no CT-01, todos na suíte principal (`npm test`):
 
 ```
 Resumo da Suíte Principal (27/09/2026)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Total de Testes:     25
-Testes Aprovados:    25
+Total de Testes:     36
+Testes Aprovados:    36
 Testes Reprovados:   0
 Taxa de Sucesso:     100%
-Tempo Total:         ~1 min 50 s
+Tempo Total:         ~3 min 15 s
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
@@ -285,8 +327,18 @@ Tempo Total:         ~1 min 50 s
 | `cadastroEmailInv.cy.js` | 3 | CT-02, CT-03 e CT-06 |
 | `cadastroSemTermo.cy.js` | 1 | CT-04 |
 | `cadastroSenhaDif.cy.js` | 1 | CT-05 |
-| `cadastroSenha.cy.js` | 9 | CT-07 |
+| `cadastroSenha.cy.js` | 10 | CT-07 e CT-09 |
 | `cadastroObrigatorios.cy.js` | 10 | CT-08 |
+| `cadastroCampos.cy.js` | 10 | CT-10 |
+
+### Testes de Bugs Conhecidos (`npm run test:bugs`)
+
+Suíte separada (`cypress/bugs-conhecidos/bugsConhecidos.cy.js`) com a regressão dos bugs #07 e #08. Assim como os testes de idioma, ela valida o comportamento **esperado**: hoje os 2 testes falham de propósito e devem passar quando os bugs forem corrigidos. Fica fora da suíte principal e roda em um job próprio no CI, sem afetar o selo.
+
+| Teste | Esperado | Resultado hoje |
+|-------|----------|----------------|
+| Bug #07 - primeiro login após o cadastro | Nenhum aviso "Algo deu errado" | Falhou (o aviso aparece) |
+| Bug #08 - senha de 257 caracteres | Mensagem de erro e permanência no cadastro | Falhou (redireciona para o login como se fosse sucesso) |
 
 ### Testes de Idioma (`npm run test:idiomas`)
 
@@ -326,7 +378,7 @@ Tempo Total:         ~33 segundos
 | **Severidade** | Baixa |
 | **Impacto** | Experiência do usuário - Inconsistência de idioma |
 | **Status** | Identificado; confirmado automaticamente em `/pt` e `/es` pelo teste de idiomas (26/09/2026) |
-| **Evidência** | [📷 evidencias/cypress/cadastroEmailInv.cy.js/cadastroInvalido.png](evidencias/cypress/cadastroEmailInv.cy.js/cadastroInvalido.png), [📷 evidencias/idiomas/idioma-pt-email-invalido.png](evidencias/idiomas/idioma-pt-email-invalido.png) e [📷 evidencias/idiomas/idioma-es-email-invalido.png](evidencias/idiomas/idioma-es-email-invalido.png) |
+| **Evidência** | [evidencias/cypress/cadastroEmailInv.cy.js/cadastroInvalido.png](evidencias/cypress/cadastroEmailInv.cy.js/cadastroInvalido.png), [evidencias/idiomas/idioma-pt-email-invalido.png](evidencias/idiomas/idioma-pt-email-invalido.png) e [evidencias/idiomas/idioma-es-email-invalido.png](evidencias/idiomas/idioma-es-email-invalido.png) |
 
 ### Bug #02 - Internacionalização (Senhas Diferentes)
 
@@ -340,7 +392,7 @@ Tempo Total:         ~33 segundos
 | **Severidade** | Baixa |
 | **Impacto** | Experiência do usuário - Inconsistência de idioma |
 | **Status** | Identificado; confirmado automaticamente em `/pt` e `/es` pelo teste de idiomas (26/09/2026) |
-| **Evidência** | [📷 evidencias/cypress/cadastroSenhaDif.cy.js/cadastroSenhaDif.png](evidencias/cypress/cadastroSenhaDif.cy.js/cadastroSenhaDif.png), [📷 evidencias/idiomas/idioma-pt-senhas-diferentes.png](evidencias/idiomas/idioma-pt-senhas-diferentes.png) e [📷 evidencias/idiomas/idioma-es-senhas-diferentes.png](evidencias/idiomas/idioma-es-senhas-diferentes.png) |
+| **Evidência** | [evidencias/cypress/cadastroSenhaDif.cy.js/cadastroSenhaDif.png](evidencias/cypress/cadastroSenhaDif.cy.js/cadastroSenhaDif.png), [evidencias/idiomas/idioma-pt-senhas-diferentes.png](evidencias/idiomas/idioma-pt-senhas-diferentes.png) e [evidencias/idiomas/idioma-es-senhas-diferentes.png](evidencias/idiomas/idioma-es-senhas-diferentes.png) |
 
 ### Bug #03 - Internacionalização (Títulos e Botões em Inglês)
 
@@ -354,7 +406,7 @@ Tempo Total:         ~33 segundos
 | **Severidade** | Baixa |
 | **Impacto** | Experiência do usuário - Inconsistência de idioma |
 | **Status** | Identificado (reexecução de 26/09/2026; comportamento já presente em 22/01/2026) |
-| **Evidência** | [📷 evidencias/cypress/cadastroCompleto.cy.js/cadastroCompleto.png](evidencias/cypress/cadastroCompleto.cy.js/cadastroCompleto.png) e [📷 evidencias/cypress/cadastroCompleto.cy.js/aposCadastro.png](evidencias/cypress/cadastroCompleto.cy.js/aposCadastro.png) |
+| **Evidência** | [evidencias/cypress/cadastroCompleto.cy.js/cadastroCompleto.png](evidencias/cypress/cadastroCompleto.cy.js/cadastroCompleto.png) e [evidencias/cypress/cadastroCompleto.cy.js/aposCadastro.png](evidencias/cypress/cadastroCompleto.cy.js/aposCadastro.png) |
 
 ### Bug #04 - Textos de Login na Tela de Cadastro
 
@@ -368,7 +420,7 @@ Tempo Total:         ~33 segundos
 | **Severidade** | Baixa |
 | **Impacto** | Experiência do usuário - o usuário pode entender que está na tela de login |
 | **Status** | Identificado (em `/pt` desde 22/01/2026; `/es` e `/en` confirmados pelo teste de idiomas em 26/09/2026) |
-| **Evidência** | [📷 evidencias/idiomas/idioma-pt-titulo-e-botao.png](evidencias/idiomas/idioma-pt-titulo-e-botao.png), [📷 evidencias/idiomas/idioma-es-titulo-e-botao.png](evidencias/idiomas/idioma-es-titulo-e-botao.png) e [📷 evidencias/idiomas/idioma-en-titulo-e-botao.png](evidencias/idiomas/idioma-en-titulo-e-botao.png) |
+| **Evidência** | [evidencias/idiomas/idioma-pt-titulo-e-botao.png](evidencias/idiomas/idioma-pt-titulo-e-botao.png), [evidencias/idiomas/idioma-es-titulo-e-botao.png](evidencias/idiomas/idioma-es-titulo-e-botao.png) e [evidencias/idiomas/idioma-en-titulo-e-botao.png](evidencias/idiomas/idioma-en-titulo-e-botao.png) |
 
 ### Bug #05 - Segurança / Privacidade (Exposição de Dados Pessoais pela API de Verificação de Email)
 
@@ -382,7 +434,7 @@ Tempo Total:         ~33 segundos
 | **Severidade** | **Alta** |
 | **Impacto** | Privacidade e conformidade com a LGPD: qualquer pessoa pode (1) descobrir se um email possui conta na Blocks (enumeração de usuários) e (2) obter dados pessoais do titular, incluindo IP e localização aproximada |
 | **Status** | Identificado em 26/09/2026 |
-| **Evidência** | [📷 evidencias/bug05-api-resposta-mascarada.png](evidencias/bug05-api-resposta-mascarada.png) |
+| **Evidência** | [evidencias/bug05-api-resposta-mascarada.png](evidencias/bug05-api-resposta-mascarada.png) |
 
 **Como foi identificado:** durante a manutenção da suíte, ao investigar a espera fixa `cy.wait(500)` após digitar o email, foi observado que a página faz uma requisição `GET` à API acima para validar o email. A verificação foi feita **somente com uma conta criada pela própria suíte de testes** (CT-01, email `teste1790470745345@gmail.com`), sem acessar dados de terceiros e sem nenhuma exploração além da observação da resposta.
 
@@ -428,7 +480,7 @@ Complemento - página oficial do Governo Federal sobre a LGPD: [https://www.gov.
 | **Severidade** | Baixa |
 | **Impacto** | Experiência do usuário - Inconsistência de idioma em um texto legal (aceite da política) |
 | **Status** | Identificado pelo teste de idiomas em 26/09/2026 |
-| **Evidência** | [📷 evidencias/idiomas/idioma-es-politica.png](evidencias/idiomas/idioma-es-politica.png) |
+| **Evidência** | [evidencias/idiomas/idioma-es-politica.png](evidencias/idiomas/idioma-es-politica.png) |
 
 ### Bug #07 - Aviso de Erro no Primeiro Login Após o Cadastro
 
@@ -439,15 +491,33 @@ Complemento - página oficial do Governo Federal sobre a LGPD: [https://www.gov.
 | **Localização** | Avisos (toasts) exibidos após o login |
 | **Comportamento Atual** | O usuário é autenticado (vai para `/pt/home`, com sessão ativa), mas vê uma mensagem de erro. Em uma das execuções, apenas o aviso de erro ficou visível. Os avisos também aparecem sobrepostos |
 | **Comportamento Esperado** | Apenas "Login efetuado com sucesso!", sem mensagem de erro |
-| **Reprodução** | **6 de 6** primeiros logins de contas novas (execuções de 27/09/2026) exibiram o aviso de erro; **0 de 2** logins de uma conta já existente exibiram |
+| **Reprodução** | **8 de 8** primeiros logins de contas novas (execuções de 27/09/2026, incluindo o teste de regressão `npm run test:bugs`) exibiram o aviso de erro; **0 de 2** logins de uma conta já existente exibiram |
 | **Severidade** | Média |
 | **Impacto** | Experiência do usuário no primeiro contato com a plataforma: a mensagem de erro sugere que o cadastro ou o login falhou, podendo levar a novas tentativas, abandono ou chamados de suporte |
 | **Status** | Identificado em 27/09/2026 |
-| **Evidência** | [📷 evidencias/bug07-primeiro-login-aviso-de-erro.png](evidencias/bug07-primeiro-login-aviso-de-erro.png) |
+| **Evidência** | [evidencias/bug07-primeiro-login-aviso-de-erro.png](evidencias/bug07-primeiro-login-aviso-de-erro.png) e [evidencias/bugs-conhecidos/bug07-aviso-de-erro-no-primeiro-login.png](evidencias/bugs-conhecidos/bug07-aviso-de-erro-no-primeiro-login.png) (teste de regressão) |
 
 **Investigação (sem causa confirmada):** durante o primeiro login, todas as requisições à API da Blocks e ao AWS Cognito responderam com sucesso (200/201/204), e não houve erro de JavaScript no console. A causa do aviso não pôde ser identificada pelo lado do cliente e precisa ser analisada pela equipe de desenvolvimento. Na mesma investigação, foram observadas respostas `403 AccessDenied` ao carregar imagens de perfil e de marcas do armazenamento `plugin-storage.nyc3.digitaloceanspaces.com`; não há evidência de que estejam relacionadas ao aviso.
 
 ![Bug #07 - aviso "Algo deu errado" após login bem-sucedido (URL /pt/home visível)](evidencias/bug07-primeiro-login-aviso-de-erro.png)
+
+### Bug #08 - Cadastro com Senha Acima de 256 Caracteres Falha em Silêncio
+
+| Campo | Detalhes |
+|-------|----------|
+| **Descrição** | Com senha de 257 caracteres ou mais, o formulário permite enviar o cadastro, o servidor recusa com erro 500 e, mesmo assim, o usuário é levado para a tela de login como se o cadastro tivesse funcionado. A conta não é criada |
+| **Ambiente** | `/pt/registrar` → API `POST https://api.blocksrvt.com/v1/user` |
+| **Localização** | Envio do formulário de cadastro (validação de tamanho máximo da senha) |
+| **Comportamento Atual** | (1) O formulário não tem limite de tamanho de senha; (2) a API responde `HTTP 500` com `InvalidParameterException: ... Value at 'temporaryPassword' failed to satisfy constraint: Member must have length less than or equal to 256`; (3) a tela redireciona para `/pt/login` sem nenhuma mensagem; (4) a conta não existe (consulta ao email retorna 404) e o login com essa senha também falha sem mensagem |
+| **Comportamento Esperado** | O formulário limitar a senha a 256 caracteres (ou informar a regra) e, se o servidor recusar o cadastro, exibir uma mensagem de erro mantendo o usuário na tela de cadastro |
+| **Severidade** | Média |
+| **Impacto** | O usuário acredita que se cadastrou, mas não consegue entrar e não recebe nenhuma explicação. Além disso, a resposta 500 expõe detalhes internos da implementação (nome do parâmetro e a regra do provedor de autenticação) |
+| **Status** | Identificado em 27/09/2026 |
+| **Evidência** | [evidencias/bugs-conhecidos/bug08-senha-257-cadastro.png](evidencias/bugs-conhecidos/bug08-senha-257-cadastro.png) |
+
+**Como foi identificado:** no teste de valor-limite da senha no servidor (CT-09), 256 caracteres funcionam e 257 falham. A evidência mostra, no mesmo print, a URL para onde o usuário foi levado (`/pt/login`) e um painel adicionado pelo teste com a resposta real da API.
+
+![Bug #08 - cadastro redirecionado para o login com a API respondendo HTTP 500](evidencias/bugs-conhecidos/bug08-senha-257-cadastro.png)
 
 > **Observação (sem evidência capturada, não classificada como bug):** na página em espanhol, as opções "Other" e "ChatGPT / Gemini / Other AI" do campo "¿Cómo te enteraste de Blocks?" aparecem em inglês.
 
@@ -467,6 +537,8 @@ Complemento - página oficial do Governo Federal sobre a LGPD: [https://www.gov.
 - **Exposição de dados pessoais pela API de verificação de email, sem autenticação (Bug #05, severidade alta, com implicações na LGPD)**
 - Inconsistências de internacionalização nas mensagens de validação, títulos, botões e link da política, nas páginas em português e espanhol (confirmadas pelo teste automatizado de idiomas)
 - Aviso de erro exibido no primeiro login de contas novas, mesmo com o login funcionando (Bug #07)
+- Cadastro com senha acima de 256 caracteres redireciona como sucesso sem criar a conta (Bug #08)
+- Validações que bloqueiam o botão sem explicar o motivo (aceite da política, nome só com espaços)
 - Textos de login na tela de cadastro nos três idiomas ("Entrar", "Iniciar", "Sign in" e o título "Iniciar Sesión")
 - Impacto na percepção de qualidade do produto
 - Possível confusão para usuários não familiarizados com inglês
@@ -509,7 +581,7 @@ Os testes automatizados foram implementados de forma a validar o comportamento a
 
 O fluxo principal de cadastro encontra-se funcional e estável, atendendo aos requisitos funcionais esperados. Todos os cenários de teste foram executados com sucesso, demonstrando a robustez do sistema.
 
-Os bugs #01 a #04 e #06 (severidade baixa) e o Bug #07 (severidade média, aviso de erro no primeiro login) não impedem o uso da funcionalidade, mas impactam a experiência do usuário. O Bug #05 é de severidade alta: não afeta o funcionamento do cadastro, mas expõe dados pessoais dos usuários sem autenticação, em desacordo com os princípios de necessidade, segurança e prevenção e com o Art. 46 da LGPD, e deve ser priorizado.
+Os bugs #01 a #04 e #06 (severidade baixa) e os bugs #07 e #08 (severidade média: aviso de erro no primeiro login e cadastro com senha acima de 256 caracteres que falha em silêncio) não impedem o uso da funcionalidade no fluxo principal, mas impactam a experiência do usuário. O Bug #05 é de severidade alta: não afeta o funcionamento do cadastro, mas expõe dados pessoais dos usuários sem autenticação, em desacordo com os princípios de necessidade, segurança e prevenção e com o Art. 46 da LGPD, e deve ser priorizado.
 
 Os testes automatizados implementados cumprem o objetivo proposto no desafio e evidenciam boas práticas de automação e análise de qualidade, incluindo:
 

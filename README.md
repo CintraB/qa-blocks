@@ -23,8 +23,8 @@ O que mudou na versão de 26/09/2026:
 - **Código de teste:** comandos customizados, `baseUrl`, fim das esperas fixas (`cy.wait(ms)` substituído pela espera da requisição da API) e cenário de email já em uso independente de dados pré-existentes
 - **Testes de idioma:** nova suíte que valida os textos da página em português, espanhol e inglês (`npm run test:idiomas`)
 - **Novos bugs no relatório:** #03 e #04 (textos em inglês e textos de login na tela de cadastro), #06 (link da política em português na página em espanhol) e **#05, de severidade alta: a API de verificação de email expõe dados pessoais sem autenticação**, com embasamento na LGPD e prints das fontes oficiais
-- **Novos cenários (27/09/2026):** login com a conta criada, email duplicado em maiúsculas, regras de senha (valor-limite e partição de equivalência) e campos obrigatórios um a um; suíte principal de 5 para 25 testes
-- **Bug #07:** aviso de erro no primeiro login após o cadastro
+- **Novos cenários (27/09/2026):** login com a conta criada, email duplicado em maiúsculas, regras de senha (valor-limite e partição de equivalência) e campos obrigatórios um a um, senha no servidor e variações dos campos; suíte principal de 5 para 36 testes
+- **Bugs #07 e #08:** aviso de erro no primeiro login após o cadastro e cadastro com senha acima de 256 caracteres que falha em silêncio, com suíte de regressão própria (`npm run test:bugs`)
 - **Relatório navegável:** cada referência a um print é um link para a imagem, com link de volta ao ponto de leitura
 - **Integração contínua:** suíte executada no GitHub Actions a cada push
 - **Organização:** dependências e configurações corrigidas, artefatos gerados fora do versionamento e evidências do relatório em pasta própria
@@ -47,6 +47,10 @@ O projeto está organizado da seguinte forma:
   - `cadastroSenhaDif.cy.js` - Teste com senhas diferentes
   - `cadastroSenha.cy.js` - Regras de senha com análise de valor-limite e partição de equivalência (9 casos)
   - `cadastroObrigatorios.cy.js` - Cada campo obrigatório em branco, um de cada vez (10 casos)
+  - `cadastroCampos.cy.js` - Variações de nome, país, área de atuação e email (10 casos)
+
+- **cypress/bugs-conhecidos/** - Regressão de bugs conhecidos (fora da suíte principal):
+  - `bugsConhecidos.cy.js` - Valida o comportamento esperado dos bugs #07 e #08; hoje falha de propósito
 
 - **cypress/idiomas/** - Testes de internacionalização (fora da suíte principal):
   - `idiomas.cy.js` - Valida textos no idioma da página em `/pt`, `/es` e `/en` (controle). Falhas hoje = bugs #01 a #04 e #06
@@ -127,6 +131,16 @@ O projeto está organizado da seguinte forma:
    - Deixa em branco cada um dos 10 itens do formulário, um de cada vez
    - Valida que o botão fica desabilitado e que habilita ao preencher somente o item que faltava
 
+9. **Senha no Servidor**
+   - Cadastra com senha de 256 caracteres (limite do AWS Cognito) e faz login
+   - Valida que a senha truncada em 72 caracteres é recusada (não há truncamento como no bcrypt)
+   - **BUG ENCONTRADO:** com 257 caracteres, o cadastro falha no servidor e a tela finge sucesso (Bug #08)
+
+10. **Variações dos Campos**
+    - Nome com 1 caractere, com apóstrofo/hífen/acento, com 300 caracteres e só com espaços
+    - País digitado sem escolher da lista e mais de uma área de atuação marcada
+    - Email com `+tag`, com subdomínio, com 254 caracteres e com espaços em volta
+
 ## Bugs Encontrados
 
 | ID | Bug | Severidade |
@@ -138,6 +152,7 @@ O projeto está organizado da seguinte forma:
 | #05 | API de verificação de email expõe dados pessoais (IP, geolocalização, perfil) sem autenticação, com base legal na LGPD | **Alta** |
 | #06 | Link "política de privacidade" em português na página em espanhol | Baixa |
 | #07 | Aviso "Algo deu errado" no primeiro login após o cadastro, mesmo com o login funcionando | Média |
+| #08 | Senha acima de 256 caracteres: a API responde 500, a conta não é criada e a tela redireciona como sucesso | Média |
 
 Detalhes, evidências e embasamento legal no [relatório](Relatorio_QA_Blocks/Cristhian_Cintra_Barbosa_Relatorio_QA_Blocks.md).
 
@@ -188,12 +203,20 @@ Executa a suíte de internacionalização (`cypress/idiomas/`). Ela valida o com
 ```bash
 npm run test:idiomas
 ```
+
+### Testes de Bugs Conhecidos
+
+Executa a regressão dos bugs #07 e #08 (`cypress/bugs-conhecidos/`). Assim como os testes de idioma, valida o comportamento **esperado** e hoje **falha de propósito**:
+
+```bash
+npm run test:bugs
+```
 ## Integração Contínua (GitHub Actions)
 
 O workflow [`.github/workflows/e2e.yml`](.github/workflows/e2e.yml) roda a cada push na `main`, em pull requests e manualmente (aba **Actions** → **Run workflow**):
 
 - **Suíte principal** (`npm test`): define o status do selo no topo deste README; no CI, cada teste tem 1 nova tentativa para absorver instabilidade de rede
-- **Testes de idioma** (`npm run test:idiomas`): executados em um job separado que não afeta o status, pois hoje falham de propósito (bugs registrados)
+- **Testes de idioma** (`npm run test:idiomas`) e **bugs conhecidos** (`npm run test:bugs`): executados em jobs separados que não afetam o status, pois hoje falham de propósito (bugs registrados)
 - Relatório HTML e screenshots de cada execução ficam disponíveis para download como artefatos por 14 dias
 
 Não há execução agendada: cada execução cria contas no ambiente da Blocks, então os testes rodam apenas quando há mudança no projeto ou sob demanda.
@@ -259,11 +282,11 @@ npm run export:pdf
 
 ```
 Data: 27/09/2026
-Total de Testes: 25
-Testes Aprovados: 25
+Total de Testes: 36
+Testes Aprovados: 36
 Testes Falhados: 0
 Taxa de Sucesso: 100%
-Tempo Total: ~1 min 50 s
+Tempo Total: ~3 min 15 s
 ```
 
 ## Autor
