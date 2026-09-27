@@ -60,3 +60,42 @@ describe('Regras de senha do cadastro', () => {
         })
     })
 })
+
+//No servidor: o cadastro usa o AWS Cognito, cujo limite de senha é 256 caracteres.
+//Fica fora do describe acima porque cria a própria conta (cadastrarUsuario abre a página).
+describe('Regras de senha no servidor', () => {
+    it('cadastra com senha de 256 caracteres (limite do servidor), faz login e recusa a senha truncada em 72', () => {
+        cy.fixture('userData').then((userData) => {
+            //Arrange
+            const senha256 = 'Aa1*'.repeat(64)
+            const email = `senha256${Date.now()}@gmail.com`
+
+            //Act: cadastro e login com a senha completa
+            cy.cadastrarUsuario({ ...userData.validUser, senha: senha256, confirmarSenha: senha256 }, email)
+            cy.fazerLogin(email, senha256)
+
+            //Assert: login funciona com os 256 caracteres
+            cy.location('pathname', { timeout: 15000 }).should('eq', '/pt/home')
+            cy.getCookie('is_logged').should('exist')
+
+            //Act: sai e tenta os 72 primeiros caracteres (sistemas com bcrypt ignoram o que passa de 72 bytes)
+            //sai da página antes de limpar a sessão: com a home aberta, o site grava o cookie de novo
+            cy.window().then((win) => { win.location.href = 'about:blank' })
+            cy.clearAllCookies()
+            cy.clearAllLocalStorage()
+            cy.clearAllSessionStorage()
+            cy.visit('/pt/login')
+            cy.aceitarCookies()
+            cy.fazerLogin(email, senha256.slice(0, 72))
+
+            //Assert: login recusado, a senha é comparada por inteiro
+            cy.contains('Algo deu errado', { timeout: 15000 }).should('be.visible')
+            cy.location('pathname').should('eq', '/pt/login')
+            cy.getCookie('is_logged').should('not.exist')
+            cy.window().then((win) => {
+                expect(Object.keys(win.localStorage).filter((k) => k.includes('idToken')), 'token do Cognito').to.be.empty
+            })
+            cy.screenshot('senha-256-truncada-72-recusada', { capture: 'runner' })
+        })
+    })
+})
