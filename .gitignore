@@ -138,5 +138,6 @@ dist
 # Documentos
 /Docs
 
-# Relatório PDF
-export-pdf.js
+# Artefatos gerados a cada execução do Cypress
+cypress/reports/
+cypress/screenshots/
