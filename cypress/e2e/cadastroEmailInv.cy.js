@@ -37,17 +37,8 @@ describe("Cadastro com email invalido", () => {
         const timestamp = Date.now()
         const emailEmUso = `emailemuso${timestamp}@gmail.com`
 
-        cy.abrirCadastro()
-        cy.preencherCadastro(userData.validUser, emailEmUso)
-        cy.aceitarPolitica()
-        cy.get('button[type="submit"]').click()
-        cy.location('pathname').should('eq', '/pt/login')
-
-        //limpa a sessão para voltar ao cadastro como um visitante novo (inclusive o banner de cookies)
-        cy.clearAllCookies()
-        cy.clearAllLocalStorage()
-        cy.clearAllSessionStorage()
-        cy.abrirCadastro()
+        cy.cadastrarUsuario(userData.validUser, emailEmUso)
+        voltarAoCadastroComoVisitante()
 
         //Act
         cy.get('#first_name').type(userData.invalidUser.nome)
@@ -61,4 +52,34 @@ describe("Cadastro com email invalido", () => {
         cy.screenshot('aposEmailjaUsado')
     })
 
+    it("Realizar cadastro com email ja em uso escrito em letras maiusculas", () => {
+        //Metodo AAA (Arrange, Act, Assert)
+
+        //Arrange
+        //o mesmo email com outra combinação de maiúsculas não pode gerar uma segunda conta
+        const timestamp = Date.now()
+        const emailEmUso = `maiusculas${timestamp}@gmail.com`
+
+        cy.cadastrarUsuario(userData.validUser, emailEmUso)
+        voltarAoCadastroComoVisitante()
+
+        //Act
+        cy.get('#first_name').type(userData.invalidUser.nome)
+        cy.get('#last_name').type(userData.invalidUser.sobrenome)
+        cy.digitarEmail(emailEmUso.toUpperCase())
+
+        cy.screenshot('emailjaUsadoMaiusculas')
+        //Assert
+        cy.get('#email').parent().find('span.text-red-600').should('be.visible').and('contain', 'Este email já está em uso.')
+        cy.get('button[type="submit"]').should('be.disabled')
+    })
+
 })
+
+//limpa a sessão para voltar ao cadastro como um visitante novo (inclusive o banner de cookies)
+function voltarAoCadastroComoVisitante() {
+    cy.clearAllCookies()
+    cy.clearAllLocalStorage()
+    cy.clearAllSessionStorage()
+    cy.abrirCadastro()
+}
