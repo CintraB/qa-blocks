@@ -23,6 +23,9 @@ O que mudou na versão de 26/09/2026:
 - **Código de teste:** comandos customizados, `baseUrl`, fim das esperas fixas (`cy.wait(ms)` substituído pela espera da requisição da API) e cenário de email já em uso independente de dados pré-existentes
 - **Testes de idioma:** nova suíte que valida os textos da página em português, espanhol e inglês (`npm run test:idiomas`)
 - **Novos bugs no relatório:** #03 e #04 (textos em inglês e textos de login na tela de cadastro), #06 (link da política em português na página em espanhol) e **#05, de severidade alta: a API de verificação de email expõe dados pessoais sem autenticação**, com embasamento na LGPD e prints das fontes oficiais
+- **Novos cenários (27/09/2026):** login com a conta criada, email duplicado em maiúsculas, regras de senha (valor-limite e partição de equivalência) e campos obrigatórios um a um; suíte principal de 5 para 25 testes
+- **Bug #07:** aviso de erro no primeiro login após o cadastro
+- **Relatório navegável:** cada referência a um print é um link para a imagem, com link de volta ao ponto de leitura
 - **Integração contínua:** suíte executada no GitHub Actions a cada push
 - **Organização:** dependências e configurações corrigidas, artefatos gerados fora do versionamento e evidências do relatório em pasta própria
 
@@ -38,10 +41,12 @@ O que mudou na versão de 26/09/2026:
 O projeto está organizado da seguinte forma:
 
 - **cypress/e2e/** - Contém todos os testes automatizados:
-  - `cadastroCompleto.cy.js` - Teste de cadastro com sucesso
-  - `cadastroEmailInv.cy.js` - Testes com email inválido e email já em uso
+  - `cadastroCompleto.cy.js` - Teste de cadastro com sucesso e login com a conta criada
+  - `cadastroEmailInv.cy.js` - Testes com email inválido, email já em uso e email já em uso escrito em maiúsculas
   - `cadastroSemTermo.cy.js` - Teste sem aceitar política de privacidade
   - `cadastroSenhaDif.cy.js` - Teste com senhas diferentes
+  - `cadastroSenha.cy.js` - Regras de senha com análise de valor-limite e partição de equivalência (9 casos)
+  - `cadastroObrigatorios.cy.js` - Cada campo obrigatório em branco, um de cada vez (10 casos)
 
 - **cypress/idiomas/** - Testes de internacionalização (fora da suíte principal):
   - `idiomas.cy.js` - Valida textos no idioma da página em `/pt`, `/es` e `/en` (controle). Falhas hoje = bugs #01 a #04 e #06
@@ -57,9 +62,12 @@ O projeto está organizado da seguinte forma:
   - `e2e.js` - Configurações globais
   - `commands.js` - Comandos customizados reutilizados pelos testes:
     - `cy.abrirCadastro()` - Abre a página de cadastro e aceita os cookies
-    - `cy.preencherCadastro(usuario, email)` - Preenche todos os campos do formulário (exceto o aceite da política)
+    - `cy.preencherCadastro(usuario, email, textos)` - Preenche os campos do formulário (exceto o aceite da política); campos ausentes no `usuario` não são preenchidos e `textos` permite outros idiomas
+    - `cy.digitarEmail(email)` - Digita o email e espera a verificação de disponibilidade na API
     - `cy.aceitarPolitica()` - Marca o aceite da política de privacidade
     - `cy.aceitarCookies()` - Aceita o banner de cookies
+    - `cy.cadastrarUsuario(usuario, email)` - Cadastro completo pela interface, para testes que precisam de uma conta existente
+    - `cy.fazerLogin(email, senha)` - Login pela tela `/pt/login`
 
 - **Relatorio_QA_Blocks/** - Relatório de QA (`.md` e `.pdf`):
   - `evidencias/cypress/` - Screenshots da execução usada no relatório
@@ -82,6 +90,7 @@ O projeto está organizado da seguinte forma:
    - Preenche todos os campos
    - Aceita a política de privacidade
    - Valida redirecionamento para página de login
+   - Faz login com a conta recém-criada e valida a sessão ativa (prova que o cadastro foi gravado)
 
 ### Cenários Negativos
 
@@ -105,6 +114,19 @@ O projeto está organizado da seguinte forma:
    - **BUG ENCONTRADO:** Mensagem em inglês mesmo com página em português
         - Comportamento verificado com página em espanhol e portugues.
 
+6. **Email Já em Uso Escrito em Maiúsculas**
+   - Cadastra uma conta e tenta o mesmo email em MAIÚSCULAS
+   - Valida que o sistema reconhece como "já em uso" (comportamento correto)
+
+7. **Regras de Senha** (valor-limite e partição de equivalência)
+   - Limite mínimo: 8 caracteres rejeitada, 9 e 10 aceitas
+   - Uma classe inválida por regra: sem maiúscula, sem minúscula, sem número e sem caractere especial
+   - Casos válidos com espaço e com 160 caracteres (não há limite máximo no formulário)
+
+8. **Campos Obrigatórios**
+   - Deixa em branco cada um dos 10 itens do formulário, um de cada vez
+   - Valida que o botão fica desabilitado e que habilita ao preencher somente o item que faltava
+
 ## Bugs Encontrados
 
 | ID | Bug | Severidade |
@@ -115,6 +137,7 @@ O projeto está organizado da seguinte forma:
 | #04 | Textos de login na tela de cadastro: botão "Entrar" / "Iniciar" / "Sign in" e título "Iniciar Sesión" (es) | Baixa |
 | #05 | API de verificação de email expõe dados pessoais (IP, geolocalização, perfil) sem autenticação, com base legal na LGPD | **Alta** |
 | #06 | Link "política de privacidade" em português na página em espanhol | Baixa |
+| #07 | Aviso "Algo deu errado" no primeiro login após o cadastro, mesmo com o login funcionando | Média |
 
 Detalhes, evidências e embasamento legal no [relatório](Relatorio_QA_Blocks/Cristhian_Cintra_Barbosa_Relatorio_QA_Blocks.md).
 
@@ -235,12 +258,12 @@ npm run export:pdf
 ## Resultados da Última Execução
 
 ```
-Data: 26/09/2026
-Total de Testes: 5
-Testes Aprovados: 5
+Data: 27/09/2026
+Total de Testes: 25
+Testes Aprovados: 25
 Testes Falhados: 0
 Taxa de Sucesso: 100%
-Tempo Total: ~32 segundos
+Tempo Total: ~1 min 50 s
 ```
 
 ## Autor
