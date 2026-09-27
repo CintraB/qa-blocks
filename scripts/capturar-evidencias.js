@@ -1,5 +1,5 @@
-//Gera as evidências do Bug #05 em Relatorio_QA_Blocks/evidencias/:
-//prints dos artigos da LGPD (planalto.gov.br e gov.br) e da resposta da API de verificação de email.
+//Gera as evidências com fonte oficial em Relatorio_QA_Blocks/evidencias/ (Bug #05 e acessibilidade):
+//prints dos artigos da LGPD e da LBI (planalto.gov.br e gov.br) e da resposta da API de verificação de email.
 //Cada print leva uma faixa com a URL de origem e a data/hora da captura.
 //
 //Uso: npm run evidencias -- <email de uma conta criada pela própria suíte de testes>
@@ -13,6 +13,7 @@ fs.mkdirSync(OUT, { recursive: true });
 
 const LEI = 'https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm';
 const MDS = 'https://www.gov.br/mds/pt-br/acesso-a-informacao/governanca/integridade/campanhas/lgpd';
+const LBI = 'https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2015/lei/l13146.htm';
 const EMAIL_PROPRIO = process.argv[2] || 'teste1790470745345@gmail.com'; //conta criada pelo CT-01 em 26/09/2026
 const API = `https://api.blocksrvt.com/v1/user/email/${EMAIL_PROPRIO}`;
 
@@ -41,8 +42,10 @@ async function capturar(page, { url, arquivo, blocos, destaques, nota }) {
     const alvo = primeiro.closest('li') || primeiro;
     alvo.parentNode.insertBefore(faixa, alvo);
 
-    faixa.scrollIntoView();
-    //elementos fixos (cabeçalho, widgets) ficariam por cima do trecho depois da rolagem
+    //leva o trecho para a área visível e recorta só o que está na tela: com a janela visível,
+    //capturar fora da área visível (captureBeyondViewport) deslocava o recorte
+    faixa.scrollIntoView({ block: 'start' });
+    //elementos fixos (cabeçalho, widgets) ficariam por cima do trecho no print
     for (const el of document.querySelectorAll('body *')) {
       const pos = getComputedStyle(el).position;
       if (pos === 'fixed' || pos === 'sticky') el.style.visibility = 'hidden';
@@ -56,12 +59,12 @@ async function capturar(page, { url, arquivo, blocos, destaques, nota }) {
     };
   }, { url, blocos, destaques, nota, quando: agora() });
   if (clip.erro) throw new Error(`${arquivo}: ${clip.erro}`);
-  await page.screenshot({ path: path.join(OUT, arquivo), clip, captureBeyondViewport: true });
+  await page.screenshot({ path: path.join(OUT, arquivo), clip, captureBeyondViewport: false });
   console.log('ok', arquivo);
 }
 
 (async () => {
-  const browser = await puppeteer.launch({ headless: 'new' });
+  const browser = await puppeteer.launch({ headless: false });
   const page = await browser.newPage();
   await page.setViewport({ width: 1000, height: 800, deviceScaleFactor: 1.5 });
   const nota = 'Destaque em amarelo adicionado na captura para indicar o trecho citado no relatório.';
@@ -75,6 +78,15 @@ async function capturar(page, { url, arquivo, blocos, destaques, nota }) {
   await capLei('lgpd-art6-principios.png', ['^Art\\. 6º As atividades', '^VIII - prevenção'],
     ['^Art\\. 6º As atividades', '^III - necessidade', '^VII - segurança', '^VIII - prevenção']);
   await capLei('lgpd-art46-seguranca.png', ['^Art\\. 46\\. Os agentes', '^Art\\. 46\\. Os agentes'], ['^Art\\. 46\\. Os agentes']);
+
+  //Lei Brasileira de Inclusão (Lei 13.146/2015), Art. 63 - acessibilidade em sites de empresas
+  await page.goto(LBI, { waitUntil: 'networkidle2', timeout: 90000 });
+  await capturar(page, {
+    url: LBI, arquivo: 'acessibilidade/lbi-art63-acessibilidade-sites.png',
+    blocos: ['^Art\\. 63\\. É obrigatória', '^§ 1º Os sítios devem conter'],
+    destaques: ['^Art\\. 63\\. É obrigatória'],
+    nota,
+  });
 
   //Página LGPD do gov.br (MDS): janela alta para não precisar rolar, cookies recusados e
   //cabeçalho escondido (#site-header.sticky-header é reposicionado por script e cobriria o trecho)

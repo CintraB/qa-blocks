@@ -20,7 +20,7 @@ const idDaEvidencia = (caminho) => 'ev-' + caminho.replace(/[^a-zA-Z0-9]+/g, '-'
 const semTags = (html) => html.replace(/<[^>]+>/g, '').trim();
 
 //Liga as referências a prints às imagens dentro do PDF:
-//- cada link para evidencias/*.png vira uma âncora interna para a imagem;
+//- cada link para evidencias/*.png ou *.jpg vira uma âncora interna para a imagem;
 //- a primeira vez que a imagem aparece no relatório ganha a âncora de destino;
 //- prints referenciados que não aparecem no relatório vão para um anexo gerado aqui;
 //- embaixo de cada imagem referenciada entram links "Voltar para" o ponto de leitura.
@@ -31,7 +31,7 @@ function ligarEvidencias(html) {
   let secaoAtual = '';
   let n = 0;
 
-  const padrao = /<h([1-3])[^>]*>([\s\S]*?)<\/h\1>|<a href="(evidencias\/[^"]+?\.png)">([\s\S]*?)<\/a>|<img src="(evidencias\/[^"]+?\.png)"([^>]*)>/g;
+  const padrao = /<h([1-3])[^>]*>([\s\S]*?)<\/h\1>|<a href="(evidencias\/[^"]+?\.(?:png|jpe?g))">([\s\S]*?)<\/a>|<img src="(evidencias\/[^"]+?\.(?:png|jpe?g))"([^>]*)>/g;
   html = html.replace(padrao, (trecho, _nivel, titulo, hrefRef, textoRef, srcImg, restoImg) => {
     if (titulo !== undefined) {
       secaoAtual = semTags(titulo);

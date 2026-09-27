@@ -62,8 +62,11 @@ A estratégia adotada foi de **testes E2E (End-to-End) automatizados**, simuland
 | **CT-08** | Campos obrigatórios, um de cada vez (10 casos) | Negativo | Passou (10/10) |
 | **CT-09** | Senha no servidor: limite de 256 caracteres, login e senha truncada em 72 | Positivo/Negativo | Passou |
 | **CT-10** | Variações de nome, país, área de atuação e email (10 casos) | Positivo/Negativo | Passou (10/10) |
+| **CT-11** | Acessibilidade: uso do cadastro somente pelo teclado (5 casos) | Positivo | Passou (5/5) |
+| **CT-12** | Acessibilidade: varredura WCAG (axe-core), caixas de seleção, campos de senha e autocomplete (4 casos, suíte de bugs conhecidos) | Negativo | Falhou (4/4) - Bugs #09 a #13 |
+| **CT-13** | Responsividade: 4 aparelhos emulados e 4 larguras de desktop, incluindo zoom de 200% e 400% (8 casos) | Positivo | Passou (8/8) |
 
-> CT-01 a CT-05 são os cenários da entrega original (22/01/2026). O login no CT-01 e os cenários CT-06 a CT-10 foram adicionados em 27/09/2026.
+> CT-01 a CT-05 são os cenários da entrega original (22/01/2026). O login no CT-01 e os cenários CT-06 a CT-13 foram adicionados em 27/09/2026.
 
 ### Cenário de Teste CT-01 - Cadastro de usuário com sucesso
 
@@ -268,6 +271,78 @@ Evidência: [evidencias/cypress/cadastroSenha.cy.js/senha-256-truncada-72-recusa
 
 Evidência das duas áreas marcadas: [evidencias/cypress/cadastroCampos.cy.js/duas-areas-marcadas.png](evidencias/cypress/cadastroCampos.cy.js/duas-areas-marcadas.png)
 
+### Cenário de Teste CT-11 - Acessibilidade: uso do cadastro somente pelo teclado
+
+- Referência: WCAG 2.2, critérios **2.1.1 Teclado** (nível A) e **2.4.7 Foco Visível** (nível AA).
+- Ferramenta: as teclas Tab, Enter e Espaço são enviadas pelo protocolo do Chrome (`cypress-real-events`), como um teclado de verdade.
+
+| Caso | Resultado |
+|------|-----------|
+| A ordem do Tab segue a ordem visual (Nome, Sobrenome, Email, País) | Passou |
+| O campo que recebe o foco pelo teclado tem indicador visível | Passou |
+| País selecionado pelo teclado (digitar, Enter e Tab); o país permanece no campo | Passou |
+| Idioma da Família selecionado pelo teclado (Enter abre, Tab chega à opção, Enter escolhe) | Passou |
+| Área de atuação e aceite da política marcados com a tecla Espaço | Passou |
+
+**Resultado:** Passou (5/5). O cadastro pode ser preenchido somente pelo teclado.
+
+**Observações (sem classificação como bug):**
+- Nas listas de "Idioma da Família" e "Como você ficou sabendo", as setas do teclado não movem a seleção; as opções são alcançadas com Tab. O uso pelo teclado é possível, mas difere do padrão esperado para listas de seleção.
+- Ao sair do campo de país com Tab, o foco vai para a seta do campo, um botão sem nome acessível (incluído no Bug #09).
+- Na investigação, a ferramenta de teclado real (`realType`) não conseguiu digitar no campo de país e o Enter selecionou "Afghanistan". A digitação foi conferida manualmente em um navegador Chrome comum, onde o país foi selecionado corretamente; por isso o comportamento foi atribuído à ferramenta e **não** registrado como bug.
+
+Evidência: [evidencias/cypress/acessibilidadeTeclado.cy.js/teclado-areas-e-politica.png](evidencias/cypress/acessibilidadeTeclado.cy.js/teclado-areas-e-politica.png)
+
+### Cenário de Teste CT-12 - Acessibilidade: varredura WCAG, caixas de seleção e campos de senha
+
+- Referência: WCAG 2.2 (tradução autorizada para português do Brasil) e Lei Brasileira de Inclusão (Lei nº 13.146/2015), Art. 63.
+- Ferramentas: **axe-core 4.13** (motor de regras de acessibilidade, via `cypress-axe`) com as regras WCAG 2.0, 2.1 e 2.2 nos níveis A e AA, e leitura da árvore de acessibilidade do navegador (o que um leitor de tela recebe).
+- Os 3 testes validam o comportamento esperado e ficam na suíte de bugs conhecidos (`npm run test:bugs`).
+
+| Teste | Esperado | Resultado |
+|-------|----------|-----------|
+| Varredura axe-core (WCAG A/AA) | Nenhuma violação crítica ou séria | Falhou: 3 regras violadas (Bugs #09, #11 e #12) |
+| Caixas de seleção (6 áreas e aceite da política) | Papel `checkbox`, nome e estado marcado/desmarcado | Falhou: são botões sem nome e sem estado (Bug #09) |
+| Campos de senha | Nome acessível que descreve a finalidade | Falhou: nome anunciado é "••••••••" (Bug #10) |
+| Propósito dos campos (`autocomplete`) | Valores da seção 7 da WCAG 2.2 em nome, sobrenome, email, país e senhas | Falhou: atributo ausente e `off` no país (Bug #13) |
+
+**Observação (sem classificação como bug):** nos demais campos de texto, os rótulos visíveis ("Nome", "Email"...) não estão associados aos campos; o nome acessível vem do placeholder, que tem o mesmo texto. O axe-core aceita o placeholder como nome, mas ele some ao digitar, e a associação do rótulo (`<label for>`) é a prática recomendada.
+
+### Cenário de Teste CT-13 - Responsividade
+
+- Referência: WCAG 2.2, critério **1.4.10 Realinhar** (nível AA): o conteúdo deve ser apresentado sem perda de informação ou funcionalidade e sem rolagem em duas dimensões com **320 pixels CSS** de largura, o que equivale a uma tela de 1280 pixels com **zoom de 400%** (nota do próprio critério).
+- **Como os aparelhos foram emulados:** do mesmo modo que o modo de dispositivo do DevTools do Chrome, pelo protocolo do Chrome (CDP): tamanho da tela, **toque** (a página passa a detectar `pointer: coarse` e eventos de toque) e **user agent do aparelho**. Cada teste confirma, de dentro da página, que a emulação está ativa antes de verificar o layout.
+- **Limitação:** é uma emulação no motor do Chrome. A densidade de tela (`devicePixelRatio`) não chega à página, que roda dentro do quadro do Cypress (não afeta o layout), e o teste não substitui a verificação em aparelho real, principalmente no Safari do iOS.
+
+| Dispositivo / tela | Tamanho | Toque e user agent | Sem rolagem horizontal | Nada fora da tela | Botão de cadastro alcançável | Toque marca a caixa de seleção | Resultado |
+|--------------------|---------|--------------------|------------------------|-------------------|------------------------------|--------------------------------|-----------|
+| iPhone SE | 375 x 667 | iOS | Sim | Sim | Sim | Sim | Passou |
+| iPhone 14 | 390 x 844 | iOS | Sim | Sim | Sim | Sim | Passou |
+| Galaxy S20 | 360 x 800 | Android | Sim | Sim | Sim | Sim | Passou |
+| iPad | 820 x 1180 | iPadOS | Sim | Sim | Sim | Sim | Passou |
+| Desktop com zoom de 400% | 320 x 568 | - | Sim | Sim | Sim | - | Passou |
+| Desktop com zoom de 200% | 640 x 400 | - | Sim | Sim | Sim | - | Passou |
+| Desktop | 1280 x 800 | - | Sim | Sim | Sim | - | Passou |
+| Desktop | 1920 x 1080 | - | Sim | Sim | Sim | - | Passou |
+
+**Resultado:** Passou (8/8). O formulário atende ao critério 1.4.10 e funciona com toque nos aparelhos emulados.
+
+**Observações (sem classificação como bug):**
+- **Seta do campo "Como você ficou sabendo sobre a Blocks?":** com 320 px de largura, o texto ocupa todo o campo e a seta some, e no iPhone SE o texto encosta nela; o usuário pode não perceber que o campo é uma lista. Os campos de seleção também usam fonte menor que os demais (12 px no celular). Evidências: [evidencias/cypress/responsividade.cy.js/resp-desktop-com-zoom-de-400-320-px-1-topo.png](evidencias/cypress/responsividade.cy.js/resp-desktop-com-zoom-de-400-320-px-1-topo.png) e [evidencias/cypress/responsividade.cy.js/resp-iphone-se-1-topo.png](evidencias/cypress/responsividade.cy.js/resp-iphone-se-1-topo.png)
+- **Área de toque:** as caixas de seleção medem 16 x 16 px e o botão de cadastro tem 36 px de altura. O axe-core considera as caixas de seleção dentro do critério 2.5.8 pela exceção de espaçamento; apenas a seta do campo de país não atende (Bug #12).
+- **Teclado do celular no campo de email:** o campo é `type="text"`, então o celular não abre o teclado próprio para email (com @). Ver também o Bug #13.
+
+Evidências (topo e rodapé da página em cada tamanho):
+
+- iPhone SE: [evidencias/cypress/responsividade.cy.js/resp-iphone-se-1-topo.png](evidencias/cypress/responsividade.cy.js/resp-iphone-se-1-topo.png) e [evidencias/cypress/responsividade.cy.js/resp-iphone-se-2-rodape.png](evidencias/cypress/responsividade.cy.js/resp-iphone-se-2-rodape.png)
+- iPhone 14: [evidencias/cypress/responsividade.cy.js/resp-iphone-14-1-topo.png](evidencias/cypress/responsividade.cy.js/resp-iphone-14-1-topo.png) e [evidencias/cypress/responsividade.cy.js/resp-iphone-14-2-rodape.png](evidencias/cypress/responsividade.cy.js/resp-iphone-14-2-rodape.png)
+- Galaxy S20: [evidencias/cypress/responsividade.cy.js/resp-galaxy-s20-1-topo.png](evidencias/cypress/responsividade.cy.js/resp-galaxy-s20-1-topo.png) e [evidencias/cypress/responsividade.cy.js/resp-galaxy-s20-2-rodape.png](evidencias/cypress/responsividade.cy.js/resp-galaxy-s20-2-rodape.png)
+- iPad: [evidencias/cypress/responsividade.cy.js/resp-ipad-1-topo.png](evidencias/cypress/responsividade.cy.js/resp-ipad-1-topo.png) e [evidencias/cypress/responsividade.cy.js/resp-ipad-2-rodape.png](evidencias/cypress/responsividade.cy.js/resp-ipad-2-rodape.png)
+- Desktop com zoom de 400%: [evidencias/cypress/responsividade.cy.js/resp-desktop-com-zoom-de-400-320-px-1-topo.png](evidencias/cypress/responsividade.cy.js/resp-desktop-com-zoom-de-400-320-px-1-topo.png) e [evidencias/cypress/responsividade.cy.js/resp-desktop-com-zoom-de-400-320-px-2-rodape.png](evidencias/cypress/responsividade.cy.js/resp-desktop-com-zoom-de-400-320-px-2-rodape.png)
+- Desktop com zoom de 200%: [evidencias/cypress/responsividade.cy.js/resp-desktop-com-zoom-de-200-640-px-1-topo.png](evidencias/cypress/responsividade.cy.js/resp-desktop-com-zoom-de-200-640-px-1-topo.png) e [evidencias/cypress/responsividade.cy.js/resp-desktop-com-zoom-de-200-640-px-2-rodape.png](evidencias/cypress/responsividade.cy.js/resp-desktop-com-zoom-de-200-640-px-2-rodape.png)
+- Desktop 1280 px: [evidencias/cypress/responsividade.cy.js/resp-desktop-1280-px-1-topo.png](evidencias/cypress/responsividade.cy.js/resp-desktop-1280-px-1-topo.png) e [evidencias/cypress/responsividade.cy.js/resp-desktop-1280-px-2-rodape.png](evidencias/cypress/responsividade.cy.js/resp-desktop-1280-px-2-rodape.png)
+- Desktop 1920 px: [evidencias/cypress/responsividade.cy.js/resp-desktop-1920-px-1-topo.png](evidencias/cypress/responsividade.cy.js/resp-desktop-1920-px-1-topo.png) e [evidencias/cypress/responsividade.cy.js/resp-desktop-1920-px-2-rodape.png](evidencias/cypress/responsividade.cy.js/resp-desktop-1920-px-2-rodape.png)
+
 ---
 
 ## 5. Resultados Gerais da Execução
@@ -308,16 +383,16 @@ As evidências (screenshots) deste relatório são da reexecução de 26/09/2026
 
 ### Ampliação da Suíte - 27/09/2026
 
-Novos cenários (CT-06 a CT-10) e login no CT-01, todos na suíte principal (`npm test`):
+Novos cenários (CT-06 a CT-11 e CT-13) e login no CT-01, todos na suíte principal (`npm test`):
 
 ```
 Resumo da Suíte Principal (27/09/2026)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Total de Testes:     36
-Testes Aprovados:    36
+Total de Testes:     49
+Testes Aprovados:    49
 Testes Reprovados:   0
 Taxa de Sucesso:     100%
-Tempo Total:         ~3 min 15 s
+Tempo Total:         ~3 min 38 s
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
@@ -330,15 +405,21 @@ Tempo Total:         ~3 min 15 s
 | `cadastroSenha.cy.js` | 10 | CT-07 e CT-09 |
 | `cadastroObrigatorios.cy.js` | 10 | CT-08 |
 | `cadastroCampos.cy.js` | 10 | CT-10 |
+| `acessibilidadeTeclado.cy.js` | 5 | CT-11 |
+| `responsividade.cy.js` | 8 | CT-13 |
 
 ### Testes de Bugs Conhecidos (`npm run test:bugs`)
 
-Suíte separada (`cypress/bugs-conhecidos/bugsConhecidos.cy.js`) com a regressão dos bugs #07 e #08. Assim como os testes de idioma, ela valida o comportamento **esperado**: hoje os 2 testes falham de propósito e devem passar quando os bugs forem corrigidos. Fica fora da suíte principal e roda em um job próprio no CI, sem afetar o selo.
+Suíte separada (`cypress/bugs-conhecidos/`) com a regressão dos bugs #07 a #13. Assim como os testes de idioma, ela valida o comportamento **esperado**: hoje os 6 testes falham de propósito e devem passar quando os bugs forem corrigidos. Fica fora da suíte principal e roda em um job próprio no CI, sem afetar o selo.
 
 | Teste | Esperado | Resultado hoje |
 |-------|----------|----------------|
 | Bug #07 - primeiro login após o cadastro | Nenhum aviso "Algo deu errado" | Falhou (o aviso aparece) |
 | Bug #08 - senha de 257 caracteres | Mensagem de erro e permanência no cadastro | Falhou (redireciona para o login como se fosse sucesso) |
+| Bugs #09, #11 e #12 - varredura axe-core (WCAG A/AA) | Nenhuma violação crítica ou séria | Falhou (3 regras violadas) |
+| Bug #09 - caixas de seleção | Papel, nome e estado acessíveis | Falhou (botões sem nome e sem estado) |
+| Bug #10 - campos de senha | Nome acessível que descreve a finalidade | Falhou (nome "••••••••") |
+| Bug #13 - propósito dos campos | `autocomplete` conforme a WCAG 2.2 | Falhou (ausente e `off` no país) |
 
 ### Testes de Idioma (`npm run test:idiomas`)
 
@@ -519,6 +600,136 @@ Complemento - página oficial do Governo Federal sobre a LGPD: [https://www.gov.
 
 ![Bug #08 - cadastro redirecionado para o login com a API respondendo HTTP 500](evidencias/bugs-conhecidos/bug08-senha-257-cadastro.png)
 
+### Bugs de Acessibilidade (#09 a #13)
+
+Identificados em 27/09/2026 pelo CT-12, com o axe-core 4.13 (Bugs #09, #11 e #12), a leitura dos atributos dos campos (Bug #13) (regras WCAG 2.0, 2.1 e 2.2, níveis A e AA) e a leitura da árvore de acessibilidade do navegador (Bugs #09 e #10).
+
+**Varredura axe-core na página de cadastro** (contorno vermelho nos elementos com violação e painel com o resultado, adicionados pelo teste):
+
+![Varredura axe-core - 3 regras violadas na página de cadastro](evidencias/acessibilidade/a11y-axe-violacoes.png)
+
+### Bug #09 - Controles Sem Nome, Papel e Estado Acessíveis
+
+| Campo | Detalhes |
+|-------|----------|
+| **Descrição** | 10 controles do formulário são botões sem nome acessível (regra `button-name` do axe-core, impacto **crítico**). As caixas de seleção (6 áreas de atuação e o aceite da política) são botões sem papel de caixa de seleção e sem estado de marcada/desmarcada |
+| **Ambiente** | `/pt/registrar` |
+| **Localização** | Caixas de seleção das áreas de atuação e do aceite da política, os 2 botões de mostrar/ocultar senha e a seta do campo de país |
+| **Comportamento Atual** | O leitor de tela anuncia apenas "botão", sem dizer qual é nem se está marcado. Mesmo com "Estudante" marcada na tela, o estado não é informado (`papel=button`, `nome=(vazio)`, `marcado=(não informado)`) |
+| **Comportamento Esperado** | Caixas de seleção com papel `checkbox` (elemento nativo ou `role="checkbox"`), estado `aria-checked` e nome associado ao texto ao lado; botões de ícone com `aria-label` (ex: "Mostrar senha") |
+| **Critério WCAG 2.2** | **4.1.2 Nome, Função, Valor (Nível A)** |
+| **Severidade** | **Alta** |
+| **Impacto** | Uma pessoa cega que usa leitor de tela não consegue saber quais áreas marcou nem confirmar que aceitou a política de privacidade e os termos de uso, que é obrigatório para concluir o cadastro |
+| **Status** | Identificado em 27/09/2026 |
+| **Evidência** | [evidencias/acessibilidade/a11y-caixas-de-selecao.png](evidencias/acessibilidade/a11y-caixas-de-selecao.png) e [evidencias/acessibilidade/a11y-axe-violacoes.png](evidencias/acessibilidade/a11y-axe-violacoes.png) |
+
+![Bug #09 - o que a tecnologia assistiva recebe de cada caixa de seleção](evidencias/acessibilidade/a11y-caixas-de-selecao.png)
+
+### Bug #10 - Campos de Senha Anunciados como "••••••••"
+
+| Campo | Detalhes |
+|-------|----------|
+| **Descrição** | Os campos "Senha" e "Confirme sua Senha" não têm rótulo associado; o nome acessível vem do placeholder, que é "••••••••" |
+| **Ambiente** | `/pt/registrar` |
+| **Localização** | Campos `#password` e `#confirm_password` |
+| **Comportamento Atual** | O leitor de tela anuncia os dois campos com o nome "••••••••", sem indicar que são de senha nem qual deles é a confirmação |
+| **Comportamento Esperado** | Os rótulos visíveis "Senha" e "Confirme sua Senha" associados aos campos (`<label for>` ou `aria-labelledby`) |
+| **Critério WCAG 2.2** | **2.4.6 Cabeçalhos e Rótulos (Nível AA)** e **4.1.2 Nome, Função, Valor (Nível A)** |
+| **Severidade** | Média |
+| **Impacto** | Usuários de leitor de tela não identificam os campos de senha e podem preencher a confirmação no lugar errado |
+| **Status** | Identificado em 27/09/2026 |
+| **Evidência** | [evidencias/acessibilidade/a11y-campos-de-senha.png](evidencias/acessibilidade/a11y-campos-de-senha.png) |
+
+![Bug #10 - nome acessível dos campos de senha](evidencias/acessibilidade/a11y-campos-de-senha.png)
+
+### Bug #11 - Contraste Insuficiente em Textos do Formulário
+
+| Campo | Detalhes |
+|-------|----------|
+| **Descrição** | 3 textos do formulário têm contraste abaixo do mínimo (regra `color-contrast` do axe-core, impacto sério) |
+| **Ambiente** | `/pt/registrar` |
+| **Localização** | Placeholder do campo de país e textos exibidos nos campos "Idioma da Família" e "Como você ficou sabendo sobre a Blocks?" |
+| **Comportamento Atual** | Texto cinza claro sobre fundo claro, abaixo da relação de contraste de 4.5:1 |
+| **Comportamento Esperado** | Relação de contraste de, no mínimo, 4.5:1 para texto normal |
+| **Critério WCAG 2.2** | **1.4.3 Contraste (Mínimo) (Nível AA)** |
+| **Severidade** | Baixa |
+| **Impacto** | Dificuldade de leitura para pessoas com baixa visão e em telas com muito brilho |
+| **Status** | Identificado em 27/09/2026 |
+| **Evidência** | [evidencias/acessibilidade/a11y-axe-violacoes.png](evidencias/acessibilidade/a11y-axe-violacoes.png) |
+
+### Bug #12 - Área de Toque Pequena na Seta do Campo de País
+
+| Campo | Detalhes |
+|-------|----------|
+| **Descrição** | O botão de seta do campo de país tem área de toque menor que 24 x 24 pixels, sem espaçamento suficiente (regra `target-size` do axe-core, impacto sério) |
+| **Ambiente** | `/pt/registrar` |
+| **Localização** | Seta do campo "País" |
+| **Comportamento Atual** | Alvo de toque abaixo de 24 x 24 pixels CSS |
+| **Comportamento Esperado** | Alvo de pelo menos 24 x 24 pixels CSS ou espaçamento que atenda à exceção do critério |
+| **Critério WCAG 2.2** | **2.5.8 Tamanho do Alvo (Mínimo) (Nível AA)** |
+| **Severidade** | Baixa |
+| **Impacto** | Dificuldade de acionar a seta em telas de toque, principalmente para pessoas com limitação motora |
+| **Status** | Identificado em 27/09/2026 |
+| **Evidência** | [evidencias/acessibilidade/a11y-axe-violacoes.png](evidencias/acessibilidade/a11y-axe-violacoes.png) |
+
+### Bug #13 - Campos Sem Identificação de Propósito (autocomplete)
+
+| Campo | Detalhes |
+|-------|----------|
+| **Descrição** | Os campos que coletam dados do próprio usuário não identificam seu propósito com o atributo `autocomplete`; o campo de país tem `autocomplete="off"`, que desliga o preenchimento automático |
+| **Ambiente** | `/pt/registrar` |
+| **Localização** | Nome, Sobrenome, Email, País, Senha e Confirme sua Senha |
+| **Comportamento Atual** | Atributo ausente em 5 campos e `off` no país; o email é `type="text"` |
+| **Comportamento Esperado** | `given-name`, `family-name`, `email`, `country-name` e `new-password` (nos dois campos de senha), valores listados na seção 7 "Finalidades de Entrada" da WCAG 2.2; email com `type="email"` |
+| **Critério WCAG 2.2** | **1.3.5 Identificar o Propósito de Entrada (Nível AA)** |
+| **Severidade** | Baixa |
+| **Impacto** | O navegador e os gerenciadores de senha não preenchem os dados automaticamente, o que dificulta o cadastro principalmente para pessoas com limitações motoras ou cognitivas; o gerenciador de senhas também não sugere senha forte para o cadastro |
+| **Status** | Identificado em 27/09/2026 |
+| **Evidência** | [evidencias/acessibilidade/a11y-autocomplete.png](evidencias/acessibilidade/a11y-autocomplete.png) |
+
+![Bug #13 - atributo autocomplete dos campos do cadastro](evidencias/acessibilidade/a11y-autocomplete.png)
+
+#### Embasamento legal e normativo - Acessibilidade
+
+| Fonte | Texto | Relação com os achados |
+|-------|-------|------------------------|
+| **Lei nº 13.146/2015 (Lei Brasileira de Inclusão), Art. 63** | "É obrigatória a acessibilidade nos sítios da internet mantidos por empresas com sede ou representação comercial no País ou por órgãos de governo, para uso da pessoa com deficiência, garantindo-lhe acesso às informações disponíveis, conforme as melhores práticas e diretrizes de acessibilidade adotadas internacionalmente." | A diretriz de acessibilidade adotada internacionalmente é a WCAG, do W3C, usada como referência nos Bugs #09 a #13 |
+| **WCAG 2.2 - 4.1.2 Nome, Função, Valor (Nível A)** | "Para todos os componentes de interface de usuário (incluindo, mas não se limitando a: elementos de formulário, links e componentes gerados por scripts), o nome e a função podem ser determinados programaticamente; os estados, as propriedades e os valores, que possam ser definidos pelo usuário, podem ser definidos programaticamente [...]" | Bugs #09 e #10 |
+| **WCAG 2.2 - 2.4.6 Cabeçalhos e Rótulos (Nível AA)** | "Os cabeçalhos e os rótulos descrevem o tópico ou a finalidade." | Bug #10 |
+| **WCAG 2.2 - 1.4.3 Contraste (Mínimo) (Nível AA)** | "A apresentação visual de texto e imagens de texto tem uma relação de contraste de, no mínimo, 4.5:1 [...]" | Bug #11 |
+| **WCAG 2.2 - 2.5.8 Tamanho do Alvo (Mínimo) (Nível AA)** | "O tamanho do alvo para entradas de ponteiro é pelo menos 24 por 24 pixels CSS, exceto quando: [...]" | Bug #12 |
+| **WCAG 2.2 - 1.3.5 Identificar o Propósito de Entrada (Nível AA)** | "A finalidade de cada campo de entrada que coleta informações sobre o usuário pode ser determinada programaticamente quando: [...] O campo de entrada atende à finalidade identificada na seção Finalidades de Entrada para Componentes de Interface de Usuário [...]" | Bug #13 (a seção 7 lista `given-name`, `family-name`, `email`, `country-name` e `new-password`) |
+| **WCAG 2.2 - 1.4.10 Realinhar (Nível AA)** | "O conteúdo pode ser apresentado sem perda de informação ou funcionalidade e sem exigir rolagem em duas dimensões para: Conteúdo de rolagem vertical com largura equivalente a 320 pixels CSS [...]" | Atendido (CT-13) |
+| **WCAG 2.2 - 2.1.1 Teclado (Nível A)** | "Toda a funcionalidade do conteúdo é operável através de uma interface de teclado [...]" | Atendido (CT-11) |
+
+Fontes oficiais: [https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2015/lei/l13146.htm](https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2015/lei/l13146.htm) e [https://www.w3.org/Translations/WCAG22-pt-BR/](https://www.w3.org/Translations/WCAG22-pt-BR/) (tradução autorizada da WCAG 2.2 para português do Brasil, publicada pelo W3C em 27/03/2025; a versão normativa em inglês está em [https://www.w3.org/TR/WCAG22/](https://www.w3.org/TR/WCAG22/)).
+
+**Prints das fontes (capturados em 27/09/2026, com o link de origem no topo de cada imagem):**
+
+![Lei Brasileira de Inclusão - Art. 63 (planalto.gov.br)](evidencias/acessibilidade/lbi-art63-acessibilidade-sites.png)
+
+![WCAG 2.2 - 4.1.2 Nome, Função, Valor (w3.org, tradução autorizada)](evidencias/acessibilidade/wcag-4-1-2-nome-funcao-valor.jpg)
+
+![WCAG 2.2 - 2.4.6 Cabeçalhos e Rótulos (w3.org, tradução autorizada)](evidencias/acessibilidade/wcag-2-4-6-cabecalhos-e-rotulos.jpg)
+
+![WCAG 2.2 - 1.4.3 Contraste (Mínimo) (w3.org, tradução autorizada)](evidencias/acessibilidade/wcag-1-4-3-contraste-minimo.jpg)
+
+![WCAG 2.2 - 2.5.8 Tamanho do Alvo (Mínimo) (w3.org, tradução autorizada)](evidencias/acessibilidade/wcag-2-5-8-tamanho-do-alvo.jpg)
+
+![WCAG 2.2 - 2.1.1 Teclado (w3.org, tradução autorizada)](evidencias/acessibilidade/wcag-2-1-1-teclado.jpg)
+
+![WCAG 2.2 - 1.3.5 Identificar o Propósito de Entrada (w3.org, tradução autorizada)](evidencias/acessibilidade/wcag-1-3-5-proposito-de-entrada.jpg)
+
+![WCAG 2.2 - seção 7, Finalidades de Entrada: name, given-name e family-name](evidencias/acessibilidade/wcag-secao-7-finalidades-1-nome.jpg)
+
+![WCAG 2.2 - seção 7, Finalidades de Entrada: new-password e country-name](evidencias/acessibilidade/wcag-secao-7-finalidades-2-senha-e-pais.jpg)
+
+![WCAG 2.2 - seção 7, Finalidades de Entrada: email](evidencias/acessibilidade/wcag-secao-7-finalidades-3-email.jpg)
+
+![WCAG 2.2 - 1.4.10 Realinhar (w3.org, tradução autorizada)](evidencias/acessibilidade/wcag-1-4-10-realinhar.jpg)
+
+> **Observação:** a caracterização de conformidade legal cabe à assessoria jurídica da Blocks; este relatório aponta os critérios técnicos da WCAG não atendidos, com base na referência indicada pela própria lei.
+
 > **Observação (sem evidência capturada, não classificada como bug):** na página em espanhol, as opções "Other" e "ChatGPT / Gemini / Other AI" do campo "¿Cómo te enteraste de Blocks?" aparecem em inglês.
 
 ---
@@ -539,6 +750,7 @@ Complemento - página oficial do Governo Federal sobre a LGPD: [https://www.gov.
 - Aviso de erro exibido no primeiro login de contas novas, mesmo com o login funcionando (Bug #07)
 - Cadastro com senha acima de 256 caracteres redireciona como sucesso sem criar a conta (Bug #08)
 - Validações que bloqueiam o botão sem explicar o motivo (aceite da política, nome só com espaços)
+- **Acessibilidade (Bugs #09 a #13):** controles sem nome, papel e estado para tecnologias assistivas (incluindo o aceite obrigatório da política), campos de senha anunciados como "••••••••", contraste insuficiente, área de toque pequena e campos sem `autocomplete`, com base na WCAG 2.2 e no Art. 63 da Lei Brasileira de Inclusão
 - Textos de login na tela de cadastro nos três idiomas ("Entrar", "Iniciar", "Sign in" e o título "Iniciar Sesión")
 - Impacto na percepção de qualidade do produto
 - Possível confusão para usuários não familiarizados com inglês
@@ -556,6 +768,14 @@ Os testes automatizados foram implementados de forma a validar o comportamento a
 - **Restringir a resposta da API de verificação de email** a um indicador de disponibilidade (ex: `{ "available": false }`), sem dados do titular
 - **Aplicar limite de requisições** (rate limiting) na rota para dificultar a enumeração de contas
 - **Envolver o encarregado de dados (DPO)** para avaliar o impacto e as obrigações previstas na LGPD
+
+### Acessibilidade (Bugs #09 a #13):
+
+- **Usar controles nativos** (`<input type="checkbox">`) ou `role="checkbox"` com `aria-checked` nas áreas de atuação e no aceite da política
+- **Associar os rótulos visíveis aos campos** (`<label for>`) e dar `aria-label` aos botões de ícone (mostrar senha, seta do país)
+- **Ajustar o contraste** dos textos do formulário e a **área de toque** da seta do país
+- **Adicionar `autocomplete`** aos campos (`given-name`, `family-name`, `email`, `country-name`, `new-password`) e usar `type="email"` no email
+- **Incluir a varredura automatizada de acessibilidade** (axe-core) no pipeline de CI, como feito neste projeto
 
 ### Curto Prazo:
 
@@ -581,7 +801,7 @@ Os testes automatizados foram implementados de forma a validar o comportamento a
 
 O fluxo principal de cadastro encontra-se funcional e estável, atendendo aos requisitos funcionais esperados. Todos os cenários de teste foram executados com sucesso, demonstrando a robustez do sistema.
 
-Os bugs #01 a #04 e #06 (severidade baixa) e os bugs #07 e #08 (severidade média: aviso de erro no primeiro login e cadastro com senha acima de 256 caracteres que falha em silêncio) não impedem o uso da funcionalidade no fluxo principal, mas impactam a experiência do usuário. O Bug #05 é de severidade alta: não afeta o funcionamento do cadastro, mas expõe dados pessoais dos usuários sem autenticação, em desacordo com os princípios de necessidade, segurança e prevenção e com o Art. 46 da LGPD, e deve ser priorizado.
+Os bugs #01 a #04 e #06 (severidade baixa) e os bugs #07, #08 e #10 a #13 (severidade média e baixa: aviso de erro no primeiro login, cadastro com senha acima de 256 caracteres que falha em silêncio e problemas de acessibilidade) não impedem o uso da funcionalidade no fluxo principal, mas impactam a experiência do usuário. O Bug #09 é de severidade alta: impede que uma pessoa que usa leitor de tela confirme o aceite obrigatório da política, contrariando o critério 4.1.2 da WCAG 2.2, referência do Art. 63 da Lei Brasileira de Inclusão. O Bug #05 também é de severidade alta: não afeta o funcionamento do cadastro, mas expõe dados pessoais dos usuários sem autenticação, em desacordo com os princípios de necessidade, segurança e prevenção e com o Art. 46 da LGPD, e deve ser priorizado.
 
 Os testes automatizados implementados cumprem o objetivo proposto no desafio e evidenciam boas práticas de automação e análise de qualidade, incluindo:
 

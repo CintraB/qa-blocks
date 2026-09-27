@@ -23,8 +23,9 @@ O que mudou na versão de 26/09/2026:
 - **Código de teste:** comandos customizados, `baseUrl`, fim das esperas fixas (`cy.wait(ms)` substituído pela espera da requisição da API) e cenário de email já em uso independente de dados pré-existentes
 - **Testes de idioma:** nova suíte que valida os textos da página em português, espanhol e inglês (`npm run test:idiomas`)
 - **Novos bugs no relatório:** #03 e #04 (textos em inglês e textos de login na tela de cadastro), #06 (link da política em português na página em espanhol) e **#05, de severidade alta: a API de verificação de email expõe dados pessoais sem autenticação**, com embasamento na LGPD e prints das fontes oficiais
-- **Novos cenários (27/09/2026):** login com a conta criada, email duplicado em maiúsculas, regras de senha (valor-limite e partição de equivalência) e campos obrigatórios um a um, senha no servidor e variações dos campos; suíte principal de 5 para 36 testes
+- **Novos cenários (27/09/2026):** login com a conta criada, email duplicado em maiúsculas, regras de senha (valor-limite e partição de equivalência) e campos obrigatórios um a um, senha no servidor, variações dos campos e acessibilidade pelo teclado; suíte principal de 5 para 49 testes
 - **Bugs #07 e #08:** aviso de erro no primeiro login após o cadastro e cadastro com senha acima de 256 caracteres que falha em silêncio, com suíte de regressão própria (`npm run test:bugs`)
+- **Acessibilidade e responsividade (WCAG 2.2):** varredura com axe-core, uso pelo teclado, aparelhos emulados como no DevTools e Bugs #09 a #13, com embasamento na tradução oficial da WCAG 2.2 e na Lei Brasileira de Inclusão
 - **Relatório navegável:** cada referência a um print é um link para a imagem, com link de volta ao ponto de leitura
 - **Integração contínua:** suíte executada no GitHub Actions a cada push
 - **Organização:** dependências e configurações corrigidas, artefatos gerados fora do versionamento e evidências do relatório em pasta própria
@@ -35,6 +36,8 @@ O que mudou na versão de 26/09/2026:
 - **Node.js** - Ambiente de execução JavaScript
 - **Mochawesome Reporter** - Geração de relatórios HTML
 - **JUnit Reporter** - Relatórios XML
+- **axe-core / cypress-axe** - Varredura de acessibilidade (regras WCAG)
+- **cypress-real-events** - Teclado real (Tab, Enter, Espaço) pelo protocolo do Chrome
 
 ## Estrutura do Projeto
 
@@ -48,9 +51,12 @@ O projeto está organizado da seguinte forma:
   - `cadastroSenha.cy.js` - Regras de senha com análise de valor-limite e partição de equivalência (9 casos)
   - `cadastroObrigatorios.cy.js` - Cada campo obrigatório em branco, um de cada vez (10 casos)
   - `cadastroCampos.cy.js` - Variações de nome, país, área de atuação e email (10 casos)
+  - `acessibilidadeTeclado.cy.js` - Uso do cadastro somente pelo teclado (5 casos)
+  - `responsividade.cy.js` - 4 aparelhos emulados como no modo de dispositivo do DevTools e 4 larguras de desktop, incluindo zoom de 200% e 400% (8 casos)
 
 - **cypress/bugs-conhecidos/** - Regressão de bugs conhecidos (fora da suíte principal):
   - `bugsConhecidos.cy.js` - Valida o comportamento esperado dos bugs #07 e #08; hoje falha de propósito
+  - `acessibilidade.cy.js` - Varredura WCAG (axe-core), caixas de seleção, campos de senha e autocomplete (bugs #09 a #13); hoje falha de propósito
 
 - **cypress/idiomas/** - Testes de internacionalização (fora da suíte principal):
   - `idiomas.cy.js` - Valida textos no idioma da página em `/pt`, `/es` e `/en` (controle). Falhas hoje = bugs #01 a #04 e #06
@@ -141,6 +147,17 @@ O projeto está organizado da seguinte forma:
     - País digitado sem escolher da lista e mais de uma área de atuação marcada
     - Email com `+tag`, com subdomínio, com 254 caracteres e com espaços em volta
 
+11. **Acessibilidade pelo Teclado**
+    - Ordem do Tab, foco visível, seleção de país e idioma pelo teclado, e caixas marcadas com Espaço
+
+12. **Acessibilidade (WCAG 2.2)**
+    - Varredura com axe-core nos níveis A e AA, leitura do que a tecnologia assistiva recebe das caixas de seleção e dos campos de senha
+    - **BUGS ENCONTRADOS:** #09 a #13, com base na WCAG 2.2 e no Art. 63 da Lei Brasileira de Inclusão
+
+13. **Responsividade**
+    - iPhone SE, iPhone 14, Galaxy S20 e iPad emulados com toque e user agent do aparelho (como o modo de dispositivo do DevTools), e desktop de 320 px (zoom de 400%) a 1920 px
+    - Sem rolagem horizontal, nada fora da tela, botão de cadastro alcançável e toque funcionando (WCAG 2.2, 1.4.10)
+
 ## Bugs Encontrados
 
 | ID | Bug | Severidade |
@@ -153,6 +170,11 @@ O projeto está organizado da seguinte forma:
 | #06 | Link "política de privacidade" em português na página em espanhol | Baixa |
 | #07 | Aviso "Algo deu errado" no primeiro login após o cadastro, mesmo com o login funcionando | Média |
 | #08 | Senha acima de 256 caracteres: a API responde 500, a conta não é criada e a tela redireciona como sucesso | Média |
+| #09 | Acessibilidade: 10 controles sem nome, papel e estado (caixas de seleção, inclusive o aceite da política) - WCAG 4.1.2 | **Alta** |
+| #10 | Acessibilidade: campos de senha anunciados como "••••••••" - WCAG 2.4.6 | Média |
+| #11 | Acessibilidade: contraste insuficiente em textos do formulário - WCAG 1.4.3 | Baixa |
+| #12 | Acessibilidade: área de toque pequena na seta do campo de país - WCAG 2.5.8 | Baixa |
+| #13 | Acessibilidade: campos sem `autocomplete` (e `off` no país) - WCAG 1.3.5 | Baixa |
 
 Detalhes, evidências e embasamento legal no [relatório](Relatorio_QA_Blocks/Cristhian_Cintra_Barbosa_Relatorio_QA_Blocks.md).
 
@@ -206,7 +228,7 @@ npm run test:idiomas
 
 ### Testes de Bugs Conhecidos
 
-Executa a regressão dos bugs #07 e #08 (`cypress/bugs-conhecidos/`). Assim como os testes de idioma, valida o comportamento **esperado** e hoje **falha de propósito**:
+Executa a regressão dos bugs #07 a #13 (`cypress/bugs-conhecidos/`). Assim como os testes de idioma, valida o comportamento **esperado** e hoje **falha de propósito**:
 
 ```bash
 npm run test:bugs
@@ -282,11 +304,11 @@ npm run export:pdf
 
 ```
 Data: 27/09/2026
-Total de Testes: 36
-Testes Aprovados: 36
+Total de Testes: 49
+Testes Aprovados: 49
 Testes Falhados: 0
 Taxa de Sucesso: 100%
-Tempo Total: ~3 min 15 s
+Tempo Total: ~3 min 38 s
 ```
 
 ## Autor
