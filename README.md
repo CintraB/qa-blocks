@@ -15,9 +15,9 @@ Este projeto demonstra minha experiência prática em automação de testes E2E,
 | Versão | Data | O que contém |
 |--------|------|--------------|
 | **Entrega do desafio** | 22/01/2026 | Tag [`entrega-2026-01-22`](https://github.com/CintraB/qa-blocks/tree/entrega-2026-01-22): versão entregue no prazo, com os 4 cenários obrigatórios + email já em uso, e o relatório com os bugs #01 e #02 |
-| **Manutenção e melhorias** | 26/09/2026 | Versão atual da `main`, descrita abaixo |
+| **Manutenção e melhorias** | 26 e 27/09/2026 | Versão atual da `main`, descrita abaixo |
 
-O que mudou na versão de 26/09/2026:
+O que mudou na versão de 26 e 27/09/2026:
 
 - **Manutenção da suíte:** o site mudou o botão do banner de cookies ("Permitir todos" → "Aceitar todos") e todos os testes passaram a falhar; a suíte foi corrigida e o clique centralizado em um comando customizado
 - **Código de teste:** comandos customizados, `baseUrl`, fim das esperas fixas (`cy.wait(ms)` substituído pela espera da requisição da API) e cenário de email já em uso independente de dados pré-existentes
@@ -27,6 +27,9 @@ O que mudou na versão de 26/09/2026:
 - **Bugs #07 e #08:** aviso de erro no primeiro login após o cadastro e cadastro com senha acima de 256 caracteres que falha em silêncio, com suíte de regressão própria (`npm run test:bugs`)
 - **Responsividade:** aparelhos emulados como no modo de dispositivo do DevTools (toque e user agent) e larguras de desktop
 - **Feedback do formulário e Bug #09:** mostrar/ocultar senha, momento das mensagens de erro e duplo clique no cadastro, que envia o cadastro duas vezes; embasamento nas diretrizes da Nielsen Norman Group
+- **Bug #05 reforçado:** verificação de que a API devolve os dados do titular da conta, e não de quem consulta (registrada só com resultados sim/não, sem dados de terceiros), e um campo com formato de CPF (`partnerCode`)
+- **Senha no servidor com fonte:** prova de que a autenticação usa o AWS Cognito (chamadas do login e chaves de sessão) e o limite de 256 caracteres na documentação oficial da AWS
+- **Resumo executivo no relatório:** achado crítico da LGPD, integração contínua e testes de UI/UX logo no início
 - **Relatório navegável:** cada referência a um print é um link para a imagem, com link de volta ao ponto de leitura
 - **Integração contínua:** suíte executada no GitHub Actions a cada push
 - **Organização:** dependências e configurações corrigidas, artefatos gerados fora do versionamento e evidências do relatório em pasta própria
