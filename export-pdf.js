@@ -16,32 +16,79 @@ function convertImageToBase64(imagePath) {
   }
 }
 
-function processMarkdownImages(markdownContent, baseDir) {
-  const imageRegex = /!\[([^\]]*)\]\(([^)]+)\)/g;
-  let processedContent = markdownContent;
-  
-  const matches = [...markdownContent.matchAll(imageRegex)];
-  console.log(`🖼️  Encontradas ${matches.length} imagens para processar...`);
-  
-  matches.forEach((match, index) => {
-    const altText = match[1];
-    const relativePath = match[2];
-    
-    const absolutePath = path.resolve(baseDir, relativePath);
-    console.log(`   ${index + 1}. Processando: ${path.basename(absolutePath)}`);
-    
-    if (fs.existsSync(absolutePath)) {
-      const base64Data = convertImageToBase64(absolutePath);
-      if (base64Data) {
-        processedContent = processedContent.replace(match[0], `![${altText}](${base64Data})`);
-        console.log(`   ✅ Convertida para base64`);
-      }
-    } else {
-      console.warn(`   ⚠️  Arquivo não encontrado: ${absolutePath}`);
+const idDaEvidencia = (caminho) => 'ev-' + caminho.replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-|-$/g, '');
+const semTags = (html) => html.replace(/<[^>]+>/g, '').trim();
+
+//Liga as referências a prints às imagens dentro do PDF:
+//- cada link para evidencias/*.png vira uma âncora interna para a imagem;
+//- a primeira vez que a imagem aparece no relatório ganha a âncora de destino;
+//- prints referenciados que não aparecem no relatório vão para um anexo gerado aqui;
+//- embaixo de cada imagem referenciada entram links "Voltar para" o ponto de leitura.
+function ligarEvidencias(html) {
+  const referencias = {}; //id da evidência -> [{ ref, secao }]
+  const embutidas = new Set();
+  const caminhos = {};
+  let secaoAtual = '';
+  let n = 0;
+
+  const padrao = /<h([1-3])[^>]*>([\s\S]*?)<\/h\1>|<a href="(evidencias\/[^"]+?\.png)">([\s\S]*?)<\/a>|<img src="(evidencias\/[^"]+?\.png)"([^>]*)>/g;
+  html = html.replace(padrao, (trecho, _nivel, titulo, hrefRef, textoRef, srcImg, restoImg) => {
+    if (titulo !== undefined) {
+      secaoAtual = semTags(titulo);
+      return trecho;
     }
+    if (hrefRef) {
+      const id = idDaEvidencia(hrefRef);
+      caminhos[id] = hrefRef;
+      const ref = `ref-${++n}`;
+      (referencias[id] = referencias[id] || []).push({ ref, secao: secaoAtual });
+      return `<a class="ref-evidencia" id="${ref}" href="#${id}">${textoRef}</a>`;
+    }
+    const id = idDaEvidencia(srcImg);
+    caminhos[id] = srcImg;
+    if (embutidas.has(id)) return trecho;
+    embutidas.add(id);
+    return `<figure class="evidencia" id="${id}"><img src="${srcImg}"${restoImg}><!--voltar:${id}--></figure>`;
   });
-  
-  return processedContent;
+
+  //prints referenciados que não aparecem no relatório: anexo gerado
+  const semImagem = Object.keys(referencias).filter((id) => !embutidas.has(id));
+  if (semImagem.length) {
+    html += '<h2 class="anexo">Anexo - Evidências Referenciadas</h2>';
+    html += '<p>Prints citados ao longo do relatório. Cada um tem um link para voltar ao ponto de leitura.</p>';
+    semImagem.forEach((id) => {
+      html += `<figure class="evidencia" id="${id}"><figcaption class="caminho">${caminhos[id]}</figcaption><img src="${caminhos[id]}" alt="${caminhos[id]}"><!--voltar:${id}--></figure>`;
+    });
+  }
+
+  //links de volta: um por seção de onde a imagem é citada
+  html = html.replace(/<!--voltar:([^>]+?)-->/g, (_, id) => {
+    const refs = referencias[id] || [];
+    const porSecao = refs.filter((r, i) => refs.findIndex((x) => x.secao === r.secao) === i);
+    if (!porSecao.length) return '';
+    return '<p class="voltar">' + porSecao.map((r) => `<a href="#${r.ref}">↩ Voltar para: ${r.secao}</a>`).join('<br>') + '</p>';
+  });
+
+  const totalRefs = Object.values(referencias).reduce((s, r) => s + r.length, 0);
+  console.log(`🔗 ${totalRefs} referências ligadas a ${Object.keys(referencias).length} prints (${semImagem.length} no anexo gerado)`);
+  return html;
+}
+
+//Troca o caminho de cada imagem pelo conteúdo em base64, para o PDF não depender dos arquivos
+function embutirImagens(html, baseDir) {
+  let total = 0;
+  const resultado = html.replace(/<img src="([^"]+)"/g, (trecho, src) => {
+    if (src.startsWith('data:') || /^https?:/.test(src)) return trecho;
+    const absoluto = path.resolve(baseDir, src);
+    if (!fs.existsSync(absoluto)) {
+      console.warn(`   ⚠️  Arquivo não encontrado: ${absoluto}`);
+      return trecho;
+    }
+    total++;
+    return `<img src="${convertImageToBase64(absoluto)}"`;
+  });
+  console.log(`🖼️  ${total} imagens embutidas no PDF`);
+  return resultado;
 }
 
 async function exportMarkdownToPDF() {
@@ -52,11 +99,14 @@ async function exportMarkdownToPDF() {
   console.log('📄 Lendo arquivo Markdown...');
   let markdownContent = fs.readFileSync(markdownPath, 'utf-8');
 
-  console.log('🔄 Processando imagens...');
-  markdownContent = processMarkdownImages(markdownContent, baseDir);
-
   console.log('🔄 Convertendo Markdown para HTML...');
-  const htmlContent = marked.parse(markdownContent);
+  let htmlContent = marked.parse(markdownContent);
+
+  console.log('🔄 Ligando referências às evidências...');
+  htmlContent = ligarEvidencias(htmlContent);
+
+  console.log('🔄 Processando imagens...');
+  htmlContent = embutirImagens(htmlContent, baseDir);
 
   const fullHtml = `
 <!DOCTYPE html>
@@ -200,6 +250,39 @@ async function exportMarkdownToPDF() {
       padding: 5px;
     }
     
+    a.ref-evidencia {
+      color: #2471a3;
+      text-decoration: none;
+      border-bottom: 1px dotted #2471a3;
+    }
+
+    figure.evidencia {
+      margin: 20px 0;
+      page-break-inside: avoid;
+    }
+
+    figure.evidencia figcaption.caminho {
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      color: #555;
+      margin-bottom: 6px;
+    }
+
+    p.voltar {
+      font-size: 13px;
+      text-align: left;
+      margin-top: -10px;
+    }
+
+    p.voltar a {
+      color: #2471a3;
+      text-decoration: none;
+    }
+
+    h2.anexo {
+      page-break-before: always;
+    }
+
     .page-break {
       page-break-after: always;
     }
