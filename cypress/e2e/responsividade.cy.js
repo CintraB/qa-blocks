@@ -1,8 +1,7 @@
-//Responsividade da página de cadastro (WCAG 2.2 - 1.4.10 Realinhar, nível AA).
+//Responsividade da página de cadastro.
 //Aparelhos: emulados como no modo de dispositivo do DevTools do Chrome (cy.emularDispositivo):
 //tamanho da tela, toque e user agent do aparelho, pelo protocolo do Chrome.
-//Desktop: 320 px de largura equivale a 1280 px com zoom de 400% (nota do critério 1.4.10) e
-//640 px equivale a 1280 px com zoom de 200%.
+//Desktop: 320 px de largura equivale a 1280 px com zoom de 400% e 640 px, a 1280 px com zoom de 200%.
 //Limitação: é emulação no motor do Chrome; não substitui o teste em aparelho real (Safari no iOS).
 
 const IOS = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1'

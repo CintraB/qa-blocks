@@ -16,9 +16,7 @@
   "license": "ISC",
   "description": "Desafio técnico Blocks QA.",
   "devDependencies": {
-    "axe-core": "^4.13.0",
     "cypress": "^15.9.0",
-    "cypress-axe": "^1.7.0",
     "cypress-mochawesome-reporter": "^4.0.2",
     "cypress-multi-reporters": "^2.0.5",
     "cypress-real-events": "^1.15.1",

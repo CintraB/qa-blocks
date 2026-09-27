@@ -15,6 +15,5 @@
 
 // Import commands.js using ES2015 syntax:
 import 'cypress-mochawesome-reporter/register'
-import 'cypress-axe' //cy.injectAxe() e cy.checkA11y(): varredura de acessibilidade (regras WCAG do axe-core)
-import 'cypress-real-events' //cy.realPress('Tab'): teclado real pelo protocolo do Chrome
+import 'cypress-real-events' //realTouch(): toque real pelo protocolo do Chrome (teste de responsividade)
 import './commands'
