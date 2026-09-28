@@ -735,7 +735,7 @@ Os testes automatizados foram implementados de forma a validar o comportamento a
 
 ## 9. Considerações Finais
 
-O fluxo principal de cadastro encontra-se funcional e estável, atendendo aos requisitos funcionais esperados. Todos os cenários de teste foram executados com sucesso, demonstrando a robustez do sistema.
+O fluxo principal de cadastro encontra-se funcional e estável, atendendo aos requisitos funcionais esperados: os 47 testes da suíte principal passaram. Os pontos que precisam de correção estão registrados como bugs e acompanhados por testes de regressão próprios, que falham de propósito até serem corrigidos.
 
 Os bugs #01 a #04 e #06 (severidade baixa) e os bugs #07 a #09 (severidade média: aviso de erro no primeiro login, cadastro com senha acima de 256 caracteres que falha em silêncio e envio duplicado do cadastro no duplo clique) não impedem o uso da funcionalidade no fluxo principal, mas impactam a experiência do usuário. O Bug #05 é de severidade alta: não afeta o funcionamento do cadastro, mas expõe dados pessoais dos usuários sem autenticação, em desacordo com os princípios de necessidade, segurança e prevenção e com o Art. 46 da LGPD, e deve ser priorizado.
 
